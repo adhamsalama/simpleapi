@@ -19,7 +19,7 @@ class Response(BaseModel):
     """
 
     code: int = Field(default=200, ge=100, le=599)
-    message: Any
+    message: Any = None
     headers: list[tuple[str, str]] = []
     content_type: str
     encoding: str = Field(default="utf-8")
