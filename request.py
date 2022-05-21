@@ -1,6 +1,9 @@
+import cgi
 from http.server import BaseHTTPRequestHandler
 import json
+from typing import Any
 from response import Response, RouteHandler
+from urllib import parse
 
 
 class Request(BaseHTTPRequestHandler):
@@ -13,12 +16,13 @@ class Request(BaseHTTPRequestHandler):
     # TODO: Allow view functions to return dicts and pydantic classes and auto-serialize them
 
     handlers: list[RouteHandler] = []
+    body: dict[str, Any] = {}
 
     def not_found(self):
         self.send_response(404)
-        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-type", "application/json")
         self.end_headers()
-        self.wfile.write(bytes(json.dumps({"message": "Not found"}), "utf-8"))
+        self.wfile.write(bytes(json.dumps("Not found"), "utf-8"))
 
     def handle_request(self, method: str):
         """
@@ -35,7 +39,8 @@ class Request(BaseHTTPRequestHandler):
                 for header in response.headers:
                     self.send_header(header[0], header[1])
                 self.end_headers()
-                self.wfile.write(bytes(response.parse_message(), response.encoding))
+                if response.message is not None:
+                    self.wfile.write(bytes(response.parse_message(), response.encoding))
                 return
         self.not_found()
 
@@ -43,7 +48,42 @@ class Request(BaseHTTPRequestHandler):
         self.handle_request("GET")
 
     def do_POST(self):
-        self.handle_request("POST")
+        # Handle post request body types
+        # Originally from
+        # https://stackoverflow.com/questions/17690585/how-do-i-access-the-data-sent-to-my-server-using-basehttprequesthandler
+        # Had to modify it a bit to work
+        for handler in self.handlers:
+            if handler["path"] == self.path and handler["method"] == "POST":
+                ctype, pdict = cgi.parse_header(self.headers.get("content-type"))
+                if ctype == "multipart/form-data":
+                    pdict["boundary"] = bytes(pdict["boundary"], "utf-8")  # type: ignore
+                    self.body = cgi.parse_multipart(self.rfile, pdict)  # type: ignore
+                    # parse_multipart returns an array of values for each key word
+                    # I will only keep the first value
+                    for k, v in self.body.items():
+                        self.body[k] = v[0]
+                elif ctype == "application/x-www-form-urlencoded":
+                    length = int(self.headers.get("content-length", 0))
+                    self.body = parse.parse_qs(
+                        self.rfile.read(length), keep_blank_values=True  # type: ignore
+                    )
+                else:
+                    # ! Assumes request body type is JSON
+                    content_length = int(self.headers.get("Content-Length"), 0)
+                    self.body = json.loads(self.rfile.read(content_length))
+                response: Response = handler["handler"](self)
+                # Add status code
+                self.send_response(response.code)
+                # Add content type
+                self.send_header("Content-type", response.content_type)
+                # Add headers
+                for header in response.headers:
+                    self.send_header(header[0], header[1])
+                self.end_headers()
+                if response.message is not None:
+                    self.wfile.write(bytes(response.parse_message(), response.encoding))
+                return
+        self.not_found()
 
     def do_PUT(self):
         self.handle_request("PUT")
