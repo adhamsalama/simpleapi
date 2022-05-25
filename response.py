@@ -37,9 +37,3 @@ class JSONResponse(Response):
 
     def parse_message(self):
         return json.dumps(self.message)
-
-
-class RouteHandler(TypedDict):
-    path: str
-    method: str
-    handler: Callable[[Any], Response]
