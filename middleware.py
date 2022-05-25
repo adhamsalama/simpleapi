@@ -1,6 +1,6 @@
 # Writing middleware is as easy as writing decorators
 
-from apf import Request, JSONResponse
+from simpleapi import Request, JSONResponse
 from custom_types import ViewFunction
 
 
