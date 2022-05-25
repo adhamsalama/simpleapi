@@ -1,6 +1,6 @@
-# APF
+# SimpleAPI
 
-APF (Another Python Framework) is a minimalistic, unopinionated web framework for Python, inspired by FastAPI & Flask.
+SimpleAPI is a minimalistic, unopinionated web framework for Python, inspired by FastAPI & Flask.
 
 This is a hobby project made for educational purposes because I want to try learning writing a web server framework.
 
