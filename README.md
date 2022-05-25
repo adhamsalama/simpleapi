@@ -6,8 +6,4 @@ This is a hobby project made for educational purposes because I want to try lear
 
 So, this is obviously not meant for production environments.
 
-TODOS:
-
-  - [ ] Add dynamic routing
-  - [ ] Allow view functions to return dicts and pydantic classes and auto-serialize them
-  - [ ] Make response methods not available from the request object to separate requests and responses completely.
+Development of SimpleAPI can be tracked at [this](https://github.com/users/adhamsalama/projects/1) GitHub project.
