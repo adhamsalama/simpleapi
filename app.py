@@ -1,9 +1,9 @@
 # Example of using APF
 
-from simpleapi import APF, Request, Response, JSONResponse
+from simpleapi import SimpleAPI, Request, Response, JSONResponse
 from middleware import current_user, require_validation
 
-app = APF()
+app = SimpleAPI()
 
 
 @app.get("/hello")

@@ -10,7 +10,7 @@ from custom_types import RouteHandler
 HTTP_METHODS = ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS", "HEAD"]
 
 
-class APF:
+class SimpleAPI:
     __request = Request
 
     def handle_request_decorator(self, path: str, method: str):
