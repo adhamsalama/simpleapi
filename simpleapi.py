@@ -4,12 +4,15 @@ from http.server import HTTPServer, ThreadingHTTPServer
 from typing import Callable
 from pydantic import validate_arguments
 from request import Request
-from response import Response, JSONResponse, RouteHandler
+from response import Response, JSONResponse
+from custom_types import RouteHandler
 
 HTTP_METHODS = ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS", "HEAD"]
 
 
 class APF:
+    __request = Request
+
     def handle_request_decorator(self, path: str, method: str):
         def decorator(handler: Callable[[Request], Response]):
 
@@ -18,7 +21,7 @@ class APF:
                 "method": method,
                 "handler": handler,
             }
-            Request.handlers.append(handler_dict)
+            self.__request.handlers.append(handler_dict)
             return handler
 
         return decorator
@@ -45,11 +48,15 @@ class APF:
         return self.handle_request_decorator(path, "OPTIONS")
 
     @validate_arguments
-    def run(self, host: str, port: int, multithreading: bool = False):
+    def run(
+        self, host: str = "localhost", port: int = 8000, multithreading: bool = True
+    ):
         if multithreading:
-            web_server = HTTPServer((host, port), Request)
+            web_server: HTTPServer | ThreadingHTTPServer = ThreadingHTTPServer(
+                (host, port), Request
+            )
         else:
-            web_server = ThreadingHTTPServer((host, port), Request)
+            web_server = HTTPServer((host, port), Request)
         try:
             print("Server running at port", port)
             web_server.serve_forever()
