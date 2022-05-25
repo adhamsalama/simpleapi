@@ -1,6 +1,7 @@
 # Example of using APF
 
 from apf import APF, Request, Response, JSONResponse
+from middleware import current_user, require_validation
 
 app = APF()
 
@@ -12,15 +13,21 @@ def hello(request: Request):
 
 
 @app.post("/items")
+@current_user
+@require_validation
 def post_item(request: Request):
     """Returns the request body"""
     body = request.body
+    body["user"] = request.extra["user"]
     return JSONResponse(message=body)
 
 
 @app.post("/image")
 def save_image(request: Request):
-    """Receives an image and stores it on disk"""
+    """
+    Receives an image and stores it on disk.
+    Assumes request content-type is multipart.
+    """
     body = request.body
     try:
         image: bytes = body["image"]
@@ -49,4 +56,4 @@ def empty(request: Request):
     return JSONResponse()
 
 
-app.run("localhost", 8080, multithreading=True)
+app.run(port=8000)
