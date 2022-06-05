@@ -19,6 +19,7 @@ class Request(BaseHTTPRequestHandler):
     handlers: list[RouteHandler] = []
     body: dict[str, Any] = {}
     extra: dict[Any, Any] = {}  # Extra dict for middleware to attach data to
+    params: dict[Any, list[str]] = {}
 
     def not_found(self):
         self.send_response(404)
@@ -31,8 +32,36 @@ class Request(BaseHTTPRequestHandler):
         A method that tries to find the matching route handler.
         Extra code for handling POST requests is done in its own function because it's a bit more complex.
         """
+        # Parse query params
+        if "?" in self.path:
+            self.params = parse.parse_qs(self.path[self.path.index("?") + 1 :], keep_blank_values=True)  # type: ignore
+            # Remove them from path
+            self.path = self.path[: self.path.index("?")]
         for handler in self.handlers:
             if handler["path"] == self.path and handler["method"] == method:
+                if method == "POST":
+                    # Handle post request body types
+                    # Originally from
+                    # https://stackoverflow.com/questions/17690585/how-do-i-access-the-data-sent-to-my-server-using-basehttprequesthandler
+                    # Had to modify it a bit to work
+                    ctype, pdict = cgi.parse_header(self.headers.get("content-type"))
+                    if ctype == "multipart/form-data":
+                        pdict["boundary"] = bytes(pdict["boundary"], "utf-8")  # type: ignore
+                        self.body = cgi.parse_multipart(self.rfile, pdict)  # type: ignore
+                        # parse_multipart returns an array of values for each key word
+                        # I will only keep the first value
+                        for k, v in self.body.items():
+                            self.body[k] = v[0]
+                    elif ctype == "application/x-www-form-urlencoded":
+                        length = int(self.headers.get("content-length", 0))
+                        self.body = parse.parse_qs(
+                            self.rfile.read(length), keep_blank_values=True  # type: ignore
+                        )
+                    else:
+                        # ! Assumes request body type is JSON
+                        content_length = int(self.headers.get("Content-Length"), 0)
+                        self.body = json.loads(self.rfile.read(content_length))
+
                 response: Response = handler["handler"](self)
                 # Add status code
                 self.send_response(response.code)
@@ -43,7 +72,11 @@ class Request(BaseHTTPRequestHandler):
                     self.send_header(header[0], header[1])
                 self.end_headers()
                 if response.message is not None:
-                    self.wfile.write(bytes(response.parse_message(), response.encoding))
+                    _response_message = response.parse_message()
+                    if type(_response_message) == str:
+                        self.wfile.write(bytes(_response_message, encoding="utf-8"))
+                    else:
+                        self.wfile.write(bytes(_response_message))
                 return
         self.not_found()
 
@@ -51,32 +84,7 @@ class Request(BaseHTTPRequestHandler):
         self.handle_request("GET")
 
     def do_POST(self):
-        # Handle post request body types
-        # Originally from
-        # https://stackoverflow.com/questions/17690585/how-do-i-access-the-data-sent-to-my-server-using-basehttprequesthandler
-        # Had to modify it a bit to work
-        for handler in self.handlers:
-            if handler["path"] == self.path and handler["method"] == "POST":
-                ctype, pdict = cgi.parse_header(self.headers.get("content-type"))
-                if ctype == "multipart/form-data":
-                    pdict["boundary"] = bytes(pdict["boundary"], "utf-8")  # type: ignore
-                    self.body = cgi.parse_multipart(self.rfile, pdict)  # type: ignore
-                    # parse_multipart returns an array of values for each key word
-                    # I will only keep the first value
-                    for k, v in self.body.items():
-                        self.body[k] = v[0]
-                elif ctype == "application/x-www-form-urlencoded":
-                    length = int(self.headers.get("content-length", 0))
-                    self.body = parse.parse_qs(
-                        self.rfile.read(length), keep_blank_values=True  # type: ignore
-                    )
-                else:
-                    # ! Assumes request body type is JSON
-                    content_length = int(self.headers.get("Content-Length"), 0)
-                    self.body = json.loads(self.rfile.read(content_length))
-                # The rest is the same as handling any other request
-                return self.handle_request("POST")
-        self.not_found()
+        self.handle_request("POST")
 
     def do_PUT(self):
         self.handle_request("PUT")
