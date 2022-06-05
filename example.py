@@ -2,8 +2,17 @@
 
 from simpleapi import SimpleAPI, Request, Response, JSONResponse
 from middleware import current_user, require_validation
+from pydantic import BaseModel
 
 app = SimpleAPI()
+
+
+class Item(BaseModel):
+    name: str
+    price: float
+
+
+items: list[Item] = []
 
 
 @app.get("/hello")
@@ -17,9 +26,22 @@ def hello(request: Request):
 @require_validation
 def post_item(request: Request):
     """Returns the request body"""
-    body = request.body
-    body["user"] = request.extra["user"]
-    return JSONResponse(message=body)
+    response = {}
+    item = Item(**request.body)
+    items.append(item)
+    response["user"] = request.extra["user"]
+    response["item"] = item.dict()
+    return JSONResponse(message=response)
+
+
+@app.get("/items")
+def get_item(request: Request):
+    q = request.params["q"][0]
+    results: list[dict] = []
+    for item in items:
+        if q in item.name:
+            results.append(item.dict())
+    return JSONResponse(message=results)
 
 
 @app.post("/image")
@@ -37,6 +59,7 @@ def save_image(request: Request):
         print("Error while trying to save image")
         print(str(e))
         return JSONResponse(code=400, message={"message": "Invalid image"})
+    # return Response(message=image, content_type="image/*") # Return the image as a response
     return JSONResponse(code=200, message={"message": "Image saved successfully"})
 
 
