@@ -19,7 +19,8 @@ class Request(BaseHTTPRequestHandler):
     handlers: list[RouteHandler] = []
     body: dict[str, Any] = {}
     extra: dict[Any, Any] = {}  # Extra dict for middleware to attach data to
-    params: dict[Any, list[str]] = {}
+    query: dict[Any, list[str]] = {}
+    params: dict[str, str] = {}
 
     def not_found(self):
         self.send_response(404)
@@ -34,11 +35,29 @@ class Request(BaseHTTPRequestHandler):
         """
         # Parse query params
         if "?" in self.path:
-            self.params = parse.parse_qs(self.path[self.path.index("?") + 1 :], keep_blank_values=True)  # type: ignore
+            self.query = parse.parse_qs(self.path[self.path.index("?") + 1 :], keep_blank_values=True)  # type: ignore
             # Remove them from path
             self.path = self.path[: self.path.index("?")]
         for handler in self.handlers:
-            if handler["path"] == self.path and handler["method"] == method:
+            # ? Check dynamic routes
+            is_dynamic = False
+            if "{" in handler["path"] and "}" in handler["path"]:  # ['/greet/{name}']
+                # ? Ignore first slash
+                # ! This wont work for trailing backslash
+                handler_path = handler["path"].split("/")[
+                    1:
+                ]  # path = ['greet', '{name}']
+                request_path = self.path.split("/")[1:]
+                if len(handler_path) == len(request_path):
+                    is_dynamic = True
+                    for handler_part, request_part in zip(handler_path, request_path):
+                        if (
+                            handler_part[0] == "{" and handler_part[-1] == "}"
+                        ):  # handler_part = '{name}'
+                            self.params[handler_part[1:-1]] = request_part
+            if handler["method"] == method and (
+                handler["path"] == self.path or is_dynamic
+            ):
                 if method == "POST":
                     # Handle post request body types
                     # Originally from
