@@ -21,6 +21,19 @@ def hello(request: Request):
     return JSONResponse(message={"hello": "world"})
 
 
+@app.get("/greet/{name}")
+def greet(request: Request):
+    """Dynamic route that greets users"""
+    return JSONResponse(message={"greetings": request.params["name"]})
+
+
+@app.get("/greet/{first_name}/{last_name}")
+def greet_fullname(request: Request):
+    """Multiple dynamic route that greets users"""
+    fullname = request.params["first_name"] + " " + request.params["last_name"]
+    return JSONResponse(message={"fullname": fullname})
+
+
 @app.post("/items")
 @current_user
 @require_validation
@@ -36,7 +49,7 @@ def post_item(request: Request):
 
 @app.get("/items")
 def get_item(request: Request):
-    q = request.params["q"][0]
+    q = request.query["q"][0]
     results: list[dict] = []
     for item in items:
         if q in item.name:
