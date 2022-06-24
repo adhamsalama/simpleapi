@@ -19,7 +19,7 @@ class Request(BaseHTTPRequestHandler):
     handlers: list[RouteHandler] = []
     body: dict[str, Any] = {}
     extra: dict[Any, Any] = {}  # Extra dict for middleware to attach data to
-    params: dict[Any, list[str]] = {}
+    query: dict[Any, list[str]] = {}
 
     def not_found(self):
         self.send_response(404)
@@ -34,7 +34,7 @@ class Request(BaseHTTPRequestHandler):
         """
         # Parse query params
         if "?" in self.path:
-            self.params = parse.parse_qs(self.path[self.path.index("?") + 1 :], keep_blank_values=True)  # type: ignore
+            self.query = parse.parse_qs(self.path[self.path.index("?") + 1 :], keep_blank_values=True)  # type: ignore
             # Remove them from path
             self.path = self.path[: self.path.index("?")]
         for handler in self.handlers:
