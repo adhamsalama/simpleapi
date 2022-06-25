@@ -8,6 +8,10 @@ So, this is obviously not meant for production environments.
 
 Development of SimpleAPI is tracked at [this](https://github.com/users/adhamsalama/projects/1) GitHub project.
 
+How to install:
+
+`pip install simplestapi`
+
 An example of using SimpleAPI:
 
 ```python
