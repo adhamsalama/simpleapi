@@ -1,6 +1,6 @@
 # Author: Adham Salama
 
-from http.server import HTTPServer, ThreadingHTTPServer
+from http.server import ThreadingHTTPServer
 from typing import Callable
 from pydantic import validate_arguments
 from request import Request
@@ -48,15 +48,8 @@ class SimpleAPI:
         return self.handle_request_decorator(path, "OPTIONS")
 
     @validate_arguments
-    def run(
-        self, host: str = "localhost", port: int = 8000, multithreading: bool = True
-    ):
-        if multithreading:
-            web_server: HTTPServer | ThreadingHTTPServer = ThreadingHTTPServer(
-                (host, port), Request
-            )
-        else:
-            web_server = HTTPServer((host, port), Request)
+    def run(self, host: str = "localhost", port: int = 8000):
+        web_server = ThreadingHTTPServer((host, port), self.__request)
         try:
             print("Server running at port", port)
             web_server.serve_forever()
