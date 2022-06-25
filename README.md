@@ -24,4 +24,4 @@ app.run(port=8000)
 
 ```
 
-More examples can be found in example.py
+More examples can be found in /examples
