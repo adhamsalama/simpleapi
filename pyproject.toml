@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "SimplestAPI"
-version = "0.0.3"
+version = "0.0.5"
 authors = [
   { name="Adham Salama", email="adhamsalama@zohomail.com" },
 ]
@@ -15,6 +15,9 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
+]
+dependencies = [
+  "pydantic"
 ]
 
 [project.urls]
