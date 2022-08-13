@@ -2,8 +2,8 @@ import cgi
 from http.server import BaseHTTPRequestHandler
 import json
 from typing import Any
-from response import Response
-from custom_types import RouteHandler
+from simpleapi.response import Response
+from simpleapi.custom_types import RouteHandler
 from urllib import parse
 
 
