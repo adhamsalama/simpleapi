@@ -3,14 +3,20 @@
 from http.server import ThreadingHTTPServer
 from typing import Callable
 from pydantic import validate_arguments
-from simpleapi.request import Request
-from simpleapi.response import Response
-from simpleapi.custom_types import RouteHandler
+from .request import Request
+from .response import Response
+from .custom_types import RouteHandler
 
 HTTP_METHODS = ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS", "HEAD"]
 
 
 class SimpleAPI:
+    """
+    SimpleAPI Class.
+
+    Exposes HTTP methods to add routing and a method for running the app.
+    """
+
     __request = Request
 
     def handle_request_decorator(self, path: str, method: str):

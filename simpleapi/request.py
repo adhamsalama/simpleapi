@@ -2,8 +2,8 @@ import cgi
 from http.server import BaseHTTPRequestHandler
 import json
 from typing import Any
-from simpleapi.response import Response
-from simpleapi.custom_types import RouteHandler
+from .response import Response
+from .custom_types import RouteHandler
 from urllib import parse
 
 
@@ -31,7 +31,6 @@ class Request(BaseHTTPRequestHandler):
     def handle_request(self, method: str):
         """
         A method that tries to find the matching route handler.
-        Extra code for handling POST requests is done in its own function because it's a bit more complex.
         """
         # Parse query params
         if "?" in self.path:

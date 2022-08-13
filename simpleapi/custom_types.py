@@ -2,8 +2,8 @@ from __future__ import annotations
 from typing import Callable, TypedDict, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from simpleapi.request import Request
-from simpleapi.response import Response
+    from .request import Request
+from .response import Response
 
 ViewFunction = Callable[["Request"], Response]
 
