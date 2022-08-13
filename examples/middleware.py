@@ -1,7 +1,7 @@
 # Writing middleware is as easy as writing decorators
 
 from simpleapi import Request, JSONResponse
-from custom_types import ViewFunction
+from simpleapi.custom_types import ViewFunction
 
 
 def current_user(f: ViewFunction):
