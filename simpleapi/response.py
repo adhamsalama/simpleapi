@@ -39,5 +39,5 @@ class JSONResponse(Response):
         return json.dumps(self.message)
 
 
-# GenericResponse = Response | JSONResponse | str | int | float | BaseModel
-GenericResponse = TypeVar("GenericResponse", Response, str, int, float, BaseModel)
+# GenericResponse = Response | JSONResponse | str | int | float | BaseModel | dict
+GenericResponse = TypeVar("GenericResponse", Response, str, int, float, BaseModel, dict)
