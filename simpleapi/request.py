@@ -5,6 +5,7 @@ from typing import Any, get_type_hints
 from .response import JSONResponse, Response, GenericResponse
 from .custom_types import RouteHandler
 from urllib import parse
+from pydantic import BaseModel
 
 
 class Request(BaseHTTPRequestHandler):
@@ -98,14 +99,22 @@ class Request(BaseHTTPRequestHandler):
                     constructed_response = response
                 elif isinstance(response, Response):
                     constructed_response = response
-                else:
+                elif isinstance(response, BaseModel):
                     # Pydantic BaseModel
                     constructed_response = Response(
                         code=200,
                         message=response.json(),
                         content_type="application/json",
                     )
-
+                elif isinstance(response, dict):
+                    # Dict
+                    constructed_response = Response(
+                        code=200,
+                        message=json.dumps(response),
+                        content_type="application/json",
+                    )
+                else:
+                    raise Exception("Unsupported Return Type from View Function")
                 # Add status code
                 self.send_response(constructed_response.code)
                 # Add content type
