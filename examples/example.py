@@ -41,6 +41,13 @@ def index4():
 
 @app.get("/5")
 def index5():
+    """View function that takes no parameter and returns a dict"""
+    person = {"name": "adhom", "age": 23}
+    return person
+
+
+@app.get("/6")
+def index6():
     """View function that takes no parameter and returns a Pydantic BaseModel"""
     item = Item(name="some item", price=2000)
     return item
