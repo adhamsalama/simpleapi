@@ -5,7 +5,7 @@ if TYPE_CHECKING:
     from .request import Request
 from .response import Response
 
-ViewFunction = Callable[["Request"], Response]
+ViewFunction = Callable[..., Response]
 
 
 class RouteHandler(TypedDict):

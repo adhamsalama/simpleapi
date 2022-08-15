@@ -1,7 +1,7 @@
 import cgi
 from http.server import BaseHTTPRequestHandler
 import json
-from typing import Any
+from typing import Any, get_type_hints
 from .response import Response
 from .custom_types import RouteHandler
 from urllib import parse
@@ -80,7 +80,13 @@ class Request(BaseHTTPRequestHandler):
                         content_length = int(self.headers.get("Content-Length"), 0)
                         self.body = json.loads(self.rfile.read(content_length))
 
-                response: Response = handler["handler"](self)
+                handler_type_hints = get_type_hints(handler["handler"])
+                dependency_injection: dict[str, Any] = {}
+                for k, v in handler_type_hints.items():
+                    if v == Request:
+                        dependency_injection[k] = self
+                response: Response = handler["handler"](**dependency_injection)
+
                 # Add status code
                 self.send_response(response.code)
                 # Add content type
