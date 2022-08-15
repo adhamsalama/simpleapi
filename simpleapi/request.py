@@ -2,7 +2,7 @@ import cgi
 from http.server import BaseHTTPRequestHandler
 import json
 from typing import Any, get_type_hints
-from .response import Response
+from .response import JSONResponse, Response, GenericResponse
 from .custom_types import RouteHandler
 from urllib import parse
 
@@ -85,19 +85,38 @@ class Request(BaseHTTPRequestHandler):
                 for k, v in handler_type_hints.items():
                     if v == Request:
                         dependency_injection[k] = self
-                response: Response = handler["handler"](**dependency_injection)
+                response = handler["handler"](**dependency_injection)
+                if isinstance(response, str):
+                    constructed_response = Response(
+                        code=200, message=response, content_type="string"
+                    )
+                elif isinstance(response, (int, float)):
+                    constructed_response = Response(
+                        code=200, message=str(response), content_type="string"
+                    )
+                elif isinstance(response, JSONResponse):
+                    constructed_response = response
+                elif isinstance(response, Response):
+                    constructed_response = response
+                else:
+                    # Pydantic BaseModel
+                    constructed_response = Response(
+                        code=200,
+                        message=response.json(),
+                        content_type="application/json",
+                    )
 
                 # Add status code
-                self.send_response(response.code)
+                self.send_response(constructed_response.code)
                 # Add content type
-                self.send_header("Content-type", response.content_type)
+                self.send_header("Content-type", constructed_response.content_type)
                 # Add headers
-                for header in response.headers:
+                for header in constructed_response.headers:
                     self.send_header(header[0], header[1])
                 self.end_headers()
-                if response.message is not None:
-                    _response_message = response.parse_message()
-                    if type(_response_message) == str:
+                if constructed_response.message is not None:
+                    _response_message = constructed_response.parse_message()
+                    if isinstance(_response_message, str):
                         self.wfile.write(bytes(_response_message, encoding="utf-8"))
                     else:
                         self.wfile.write(bytes(_response_message))
