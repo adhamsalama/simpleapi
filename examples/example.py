@@ -15,10 +15,35 @@ class Item(BaseModel):
 items: list[Item] = []
 
 
-@app.get("/")
+@app.get("/1")
 def index():
-    """View function that takes no parameter"""
+    """View function that takes no parameter and returns JSONResponse"""
     return JSONResponse(message={"hello": "world"})
+
+
+@app.get("/2")
+def index2():
+    """View function that takes no parameter and returns a string"""
+    return "Hello, World!"
+
+
+@app.get("/3")
+def index3():
+    """View function that takes no parameter and returns an int"""
+    return 12
+
+
+@app.get("/4")
+def index4():
+    """View function that takes no parameter and returns a float"""
+    return 20.56
+
+
+@app.get("/5")
+def index5():
+    """View function that takes no parameter and returns a Pydantic BaseModel"""
+    item = Item(name="some item", price=2000)
+    return item
 
 
 @app.get("/hello")
