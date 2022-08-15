@@ -1,11 +1,9 @@
 # Author: Adham Salama
 
 from http.server import ThreadingHTTPServer
-from typing import Callable
 from pydantic import validate_arguments
 from .request import Request
-from .response import Response
-from .custom_types import RouteHandler
+from .custom_types import RouteHandler, ViewFunction
 
 HTTP_METHODS = ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS", "HEAD"]
 
@@ -20,7 +18,7 @@ class SimpleAPI:
     __request = Request
 
     def handle_request_decorator(self, path: str, method: str):
-        def decorator(handler: Callable[[Request], Response]):
+        def decorator(handler: ViewFunction):
 
             handler_dict: RouteHandler = {
                 "path": path,
