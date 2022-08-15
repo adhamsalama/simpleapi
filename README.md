@@ -15,14 +15,14 @@ How to install:
 An example of using SimpleAPI:
 
 ```python
-from simpleapi import SimpleAPI, Request, JSONResponse
+from simpleapi import SimpleAPI
 
 app = SimpleAPI()
 
 @app.get("/hello")
-def hello(request: Request):
-    """Returns hello world in JSON format"""
-    return JSONResponse(message={"hello": "world"})
+def hello():
+    """Returns hello world as a string"""
+    return "Hello, world!"
 
 app.run(port=8000)
 
