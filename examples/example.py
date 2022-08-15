@@ -15,6 +15,12 @@ class Item(BaseModel):
 items: list[Item] = []
 
 
+@app.get("/")
+def index():
+    """View function that takes no parameter"""
+    return JSONResponse(message={"hello": "world"})
+
+
 @app.get("/hello")
 def hello(request: Request):
     """Returns hello world in JSON format"""
