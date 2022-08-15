@@ -1,5 +1,5 @@
 import json
-from typing import Any, Callable, TypedDict
+from typing import Any, TypeVar
 from pydantic import validate_arguments, BaseModel, Field
 
 
@@ -37,3 +37,7 @@ class JSONResponse(Response):
 
     def parse_message(self):
         return json.dumps(self.message)
+
+
+# GenericResponse = Response | JSONResponse | str | int | float | BaseModel | dict
+GenericResponse = TypeVar("GenericResponse", Response, str, int, float, BaseModel, dict)
