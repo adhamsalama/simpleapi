@@ -59,33 +59,41 @@ class Request(BaseHTTPRequestHandler):
             if handler["method"] == method and (
                 handler["path"] == self.path or is_dynamic
             ):
-                # Handle request body types
-                # Originally from
-                # https://stackoverflow.com/questions/17690585/how-do-i-access-the-data-sent-to-my-server-using-basehttprequesthandler
-                # Had to modify it a bit to work
-                ctype, pdict = cgi.parse_header(self.headers.get("content-type"))
-                if ctype == "multipart/form-data":
-                    pdict["boundary"] = bytes(pdict["boundary"], "utf-8")  # type: ignore
-                    self.body = cgi.parse_multipart(self.rfile, pdict)  # type: ignore
-                    # parse_multipart returns an array of values for each key word
-                    # I will only keep the first value
-                    for k, v in self.body.items():
-                        self.body[k] = v[0]
-                elif ctype == "application/x-www-form-urlencoded":
-                    length = int(self.headers.get("content-length", 0))
-                    self.body = parse.parse_qs(
-                        self.rfile.read(length), keep_blank_values=True  # type: ignore
-                    )
-                else:
-                    # ! Assumes request body type is JSON
-                    content_length = int(self.headers.get("Content-Length"), 0)
-                    self.body = json.loads(self.rfile.read(content_length))
+                if method in ["POST", "PUT", "PATCH"]:
+                    # Handle request body types
+                    # Originally from
+                    # https://stackoverflow.com/questions/17690585/how-do-i-access-the-data-sent-to-my-server-using-basehttprequesthandler
+                    # Had to modify it a bit to work
+                    ctype, pdict = cgi.parse_header(self.headers.get("content-type"))
+                    if ctype == "multipart/form-data":
+                        pdict["boundary"] = bytes(pdict["boundary"], "utf-8")  # type: ignore
+                        self.body = cgi.parse_multipart(self.rfile, pdict)  # type: ignore
+                        # parse_multipart returns an array of values for each key word
+                        # I will only keep the first value
+                        for k, v in self.body.items():
+                            self.body[k] = v[0]
+                    elif ctype == "application/x-www-form-urlencoded":
+                        length = int(self.headers.get("content-length", 0))
+                        self.body = parse.parse_qs(
+                            self.rfile.read(length), keep_blank_values=True  # type: ignore
+                        )
+                    else:
+                        # ! Assumes request body type is JSON
+                        content_length = int(self.headers.get("Content-Length"), 0)
+                        self.body = json.loads(self.rfile.read(content_length))
 
                 handler_type_hints = get_type_hints(handler["handler"])
                 dependency_injection: dict[str, Any] = {}
                 for k, v in handler_type_hints.items():
                     if v == Request:
                         dependency_injection[k] = self
+                    elif k in self.body.keys():
+                        if isinstance(self.body[k], v):  # type: ignore
+                            dependency_injection[k] = self.body[k]
+                    else:
+                        # ? The follwoing type ignore is for accessing __name__ on Any
+                        error_response = Response(code=400, message=f"Error: Property {k} is required to be of type {v.__name__}", content_type="string")  # type: ignore
+                        return self.end_response(error_response)
                 response = handler["handler"](**dependency_injection)
                 if isinstance(response, str):
                     constructed_response = Response(
@@ -115,21 +123,7 @@ class Request(BaseHTTPRequestHandler):
                     )
                 else:
                     raise Exception("Unsupported Return Type from View Function")
-                # Add status code
-                self.send_response(constructed_response.code)
-                # Add content type
-                self.send_header("Content-type", constructed_response.content_type)
-                # Add headers
-                for header in constructed_response.headers:
-                    self.send_header(header[0], header[1])
-                self.end_headers()
-                if constructed_response.message is not None:
-                    _response_message = constructed_response.parse_message()
-                    if isinstance(_response_message, str):
-                        self.wfile.write(bytes(_response_message, encoding="utf-8"))
-                    else:
-                        self.wfile.write(bytes(_response_message))
-                return
+                return self.end_response(constructed_response)
         self.not_found()
 
     def do_GET(self):
@@ -152,3 +146,22 @@ class Request(BaseHTTPRequestHandler):
 
     def do_OPTIONS(self):
         self.handle_request("OPTIONS")
+
+    def end_response(self, response: Response):
+        # Add status code
+        self.send_response(response.code)
+        # Add content type
+        self.send_header("Content-type", response.content_type)
+        # Add headers
+        for header in response.headers:
+            self.send_header(header[0], header[1])
+        self.end_headers()
+        if response.message is None:
+            response.message = ""
+        _response_message = response.parse_message()
+        if isinstance(_response_message, str):
+            self.wfile.write(bytes(_response_message, encoding="utf-8"))
+        else:
+            self.wfile.write(bytes(_response_message))
+
+        return
