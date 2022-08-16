@@ -149,7 +149,7 @@ class Request(BaseHTTPRequestHandler):
 
     def end_response(self, response: Response):
         # Add status code
-        self.send_response(500)
+        self.send_response(response.code)
         # Add content type
         self.send_header("Content-type", response.content_type)
         # Add headers
