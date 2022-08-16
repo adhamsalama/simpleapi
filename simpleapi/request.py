@@ -1,7 +1,8 @@
 import cgi
 from http.server import BaseHTTPRequestHandler
 import json
-from typing import Any, get_type_hints
+from typing import Any, get_type_hints, cast, Type
+from typing_extensions import reveal_type
 from .response import JSONResponse, Response, GenericResponse
 from .custom_types import RouteHandler
 from urllib import parse
@@ -58,28 +59,27 @@ class Request(BaseHTTPRequestHandler):
             if handler["method"] == method and (
                 handler["path"] == self.path or is_dynamic
             ):
-                if method == "POST":
-                    # Handle post request body types
-                    # Originally from
-                    # https://stackoverflow.com/questions/17690585/how-do-i-access-the-data-sent-to-my-server-using-basehttprequesthandler
-                    # Had to modify it a bit to work
-                    ctype, pdict = cgi.parse_header(self.headers.get("content-type"))
-                    if ctype == "multipart/form-data":
-                        pdict["boundary"] = bytes(pdict["boundary"], "utf-8")  # type: ignore
-                        self.body = cgi.parse_multipart(self.rfile, pdict)  # type: ignore
-                        # parse_multipart returns an array of values for each key word
-                        # I will only keep the first value
-                        for k, v in self.body.items():
-                            self.body[k] = v[0]
-                    elif ctype == "application/x-www-form-urlencoded":
-                        length = int(self.headers.get("content-length", 0))
-                        self.body = parse.parse_qs(
-                            self.rfile.read(length), keep_blank_values=True  # type: ignore
-                        )
-                    else:
-                        # ! Assumes request body type is JSON
-                        content_length = int(self.headers.get("Content-Length"), 0)
-                        self.body = json.loads(self.rfile.read(content_length))
+                # Handle request body types
+                # Originally from
+                # https://stackoverflow.com/questions/17690585/how-do-i-access-the-data-sent-to-my-server-using-basehttprequesthandler
+                # Had to modify it a bit to work
+                ctype, pdict = cgi.parse_header(self.headers.get("content-type"))
+                if ctype == "multipart/form-data":
+                    pdict["boundary"] = bytes(pdict["boundary"], "utf-8")  # type: ignore
+                    self.body = cgi.parse_multipart(self.rfile, pdict)  # type: ignore
+                    # parse_multipart returns an array of values for each key word
+                    # I will only keep the first value
+                    for k, v in self.body.items():
+                        self.body[k] = v[0]
+                elif ctype == "application/x-www-form-urlencoded":
+                    length = int(self.headers.get("content-length", 0))
+                    self.body = parse.parse_qs(
+                        self.rfile.read(length), keep_blank_values=True  # type: ignore
+                    )
+                else:
+                    # ! Assumes request body type is JSON
+                    content_length = int(self.headers.get("Content-Length"), 0)
+                    self.body = json.loads(self.rfile.read(content_length))
 
                 handler_type_hints = get_type_hints(handler["handler"])
                 dependency_injection: dict[str, Any] = {}
@@ -144,7 +144,10 @@ class Request(BaseHTTPRequestHandler):
     def do_PATCH(self):
         self.handle_request("PATCH")
 
-    def HEAD(self):
+    def do_DELETE(self):
+        self.handle_request("DELETE")
+
+    def do_HEAD(self):
         self.handle_request("HEAD")
 
     def do_OPTIONS(self):
