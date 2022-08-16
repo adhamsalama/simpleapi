@@ -59,7 +59,7 @@ class Request(BaseHTTPRequestHandler):
             if handler["method"] == method and (
                 handler["path"] == self.path or is_dynamic
             ):
-                if method in ["POST", "PUT", "PATCH"]:
+                if method in ["POST"]:
                     # Handle request body types
                     # Originally from
                     # https://stackoverflow.com/questions/17690585/how-do-i-access-the-data-sent-to-my-server-using-basehttprequesthandler
@@ -149,7 +149,7 @@ class Request(BaseHTTPRequestHandler):
 
     def end_response(self, response: Response):
         # Add status code
-        self.send_response(response.code)
+        self.send_response(500)
         # Add content type
         self.send_header("Content-type", response.content_type)
         # Add headers
