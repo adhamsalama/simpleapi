@@ -17,7 +17,7 @@ items: list[Item] = []
 
 
 @app.post("/dependency-injection")
-def dep_injection(name: str, price: float) -> int:
+def dep_injection(name: str, price: float):
     """View function that uses depedency injection"""
     return {"name": name, "price": price}
 

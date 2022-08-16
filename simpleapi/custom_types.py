@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import Callable, TypedDict
 from .response import GenericResponse
 
-ViewFunction = Callable[..., None]
+ViewFunction = Callable[..., GenericResponse]
 
 
 class RouteHandler(TypedDict):
