@@ -1,8 +1,8 @@
 from __future__ import annotations
 from typing import Callable, TypedDict
-from .response import GenericResponse, Response
+from .response import GenericResponse
 
-ViewFunction = Callable[..., Response]
+ViewFunction = Callable[..., None]
 
 
 class RouteHandler(TypedDict):
