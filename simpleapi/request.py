@@ -86,6 +86,9 @@ class Request(BaseHTTPRequestHandler):
                 for k, v in handler_type_hints.items():
                     if v == Request:
                         dependency_injection[k] = self
+                    elif k in self.body.keys():
+                        if isinstance(self.body[k], v): #type: ignore
+                            dependency_injection[k] = self.body[k]
                 response = handler["handler"](**dependency_injection)
                 if isinstance(response, str):
                     constructed_response = Response(
