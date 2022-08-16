@@ -1,7 +1,7 @@
 # Example of using APF
 
-from simpleapi import SimpleAPI, Request, Response, JSONResponse
-from middleware import current_user, require_validation
+from simpleapi import SimpleAPI, Request, Response, JSONResponse, RouteHandler
+from middleware import current_user, require_validation  # type: ignore
 from pydantic import BaseModel
 
 app = SimpleAPI()
@@ -13,6 +13,12 @@ class Item(BaseModel):
 
 
 items: list[Item] = []
+
+
+@app.post("/dependency-injection")
+def dep_injection(name: str, price: float):
+    """View function that uses depedency injection"""
+    return {"name": name, "price": price}
 
 
 @app.get("/1")
