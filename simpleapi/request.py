@@ -59,7 +59,7 @@ class Request(BaseHTTPRequestHandler):
             if handler["method"] == method and (
                 handler["path"] == self.path or is_dynamic
             ):
-                if method in ["POST"]:
+                if method in ["POST", "PUT", "PATCH"]:
                     # Handle request body types
                     # Originally from
                     # https://stackoverflow.com/questions/17690585/how-do-i-access-the-data-sent-to-my-server-using-basehttprequesthandler
