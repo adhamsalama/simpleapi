@@ -1,18 +1,19 @@
-from simpleapi import Request, Response, JSONResponse, SimpleAPI, response, custom_types
+from simpleapi import Request, Response, JSONResponse, SimpleAPI, custom_types
 from .routers import test
 
 app = SimpleAPI()
 
 app.add_router(prefix="/router", router=test.router)
 
-def current_user(f: custom_types.ViewFunction):
-    """Middleware that adds user data to the request"""
 
-    def decorator(request: Request):
-        request.extra["user"] = request.body
-        return f(request)
+# def current_user(f: custom_types.ViewFunction):
+#     """Middleware that adds user data to the request"""
 
-    return decorator
+#     def decorator(request: Request):
+#         request.extra["user"] = request.body
+#         return f(request)
+
+#     return decorator
 
 
 @app.get("/hello")
@@ -30,6 +31,7 @@ def greet(request: Request):
 @app.post("/items")
 def post_item(request: Request):
     """Test post request returning body as JSON"""
+    print("request.body", request.body)
     return JSONResponse(body=request.body)
 
 
@@ -74,7 +76,7 @@ def options():
 
 
 @app.post("/middleware")
-@current_user
+# @current_user
 def middleware(request: Request):
     """Tests middleware"""
     return JSONResponse(body=request.extra["user"])
@@ -97,4 +99,3 @@ def dependency_injection_error(name: str, price: float, active: bool):
     """Test dependency injection"""
     # ? SimpleAPI should automatically return an error with this ever executing
     return {"name": name, "price": price}
-

@@ -62,11 +62,11 @@ def test_options_request():
     assert response.ok
 
 
-def test_middleware():
-    user = {"username": "adhom", "email": "adhom@adhom.com"}
-    response = requests.post("http://localhost:8000/middleware", json=user)
-    assert response.ok
-    assert json.loads(response.content.decode("utf-8")) == user
+# def test_middleware():
+#     user = {"username": "adhom", "email": "adhom@adhom.com"}
+#     response = requests.post("http://localhost:8000/middleware", json=user)
+#     assert response.ok
+#     assert json.loads(response.content.decode("utf-8")) == user
 
 
 def test_get_query_request():
@@ -92,14 +92,30 @@ def test_dependency_injection_error():
     )
     assert not response.ok
     assert response.status_code == 403
-    assert response.text == "Error: Property active is required to be of type bool but it's missing"
+    assert response.json() == {
+        "errors": [
+            {
+                "loc": ["active"],
+                "msg": "Property active is required to be of type bool but it's missing",
+            }
+        ]
+    }
+
 
 def test_router_get():
     response = requests.get("http://localhost:8000/router/test")
     assert response.ok
     assert response.text == "test"
 
+
 def test_router_post():
     response = requests.post("http://localhost:8000/router/test")
     assert response.ok
     assert response.text == "test"
+
+
+def test_not_found():
+    response = requests.get("http://localhost:8000/non-exisiting-route")
+    assert not response.ok
+    assert response.status_code == 404
+    assert response.json() == {"errors": [{"loc": ["request"], "msg": "404 Not Found"}]}
