@@ -1,7 +1,5 @@
-from __future__ import annotations
+from typing import BinaryIO, Callable, TypedDict
 
-from typing import TypedDict, BinaryIO, ByteString
-from typing import Callable, TypedDict
 from .response import GenericResponse
 
 Environ = TypedDict("Environ", {

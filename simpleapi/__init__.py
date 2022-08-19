@@ -1,6 +1,7 @@
-__version__ = "0.0.5"
+__version__ = "0.1.0"
 
-from .simpleapi import SimpleAPI
-from .request import Request
-from .response import Response, JSONResponse
 from .custom_types import RouteHandler, ViewFunction
+from .request import Request
+from .response import JSONResponse, Response
+from .router import Router
+from .simpleapi import SimpleAPI

@@ -1,11 +1,11 @@
-import cgi
 import json
-from typing import Any, Callable, get_type_hints
-from .response import JSONResponse, Response
-from .custom_types import RouteHandler
-from urllib import parse
+from typing import Any, get_type_hints
+
 from pydantic import BaseModel
+
+from .custom_types import RouteHandler
 from .request import Request
+from .response import JSONResponse, Response
 
 
 def handle_request(request: Request, handlers: list[RouteHandler]) -> Response:

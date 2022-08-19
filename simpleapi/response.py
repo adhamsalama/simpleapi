@@ -3,7 +3,6 @@ from typing import Any, Callable, TypeVar
 
 from pydantic import BaseModel, Field, validate_arguments
 
-
 start_response_function = Callable[[str, list[tuple[str, str]]], Any]
 
 class WSGIResponse:
