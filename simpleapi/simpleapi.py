@@ -1,9 +1,28 @@
 # Author: Adham Salama
 
-from http.server import ThreadingHTTPServer
-from pydantic import validate_arguments
+import json
+
+from .custom_types import Environ
 from .request import Request
-from .custom_types import RouteHandler, ViewFunction
+from .response import WSGIResponse
+
+from .custom_types import RouteHandler, ViewFunction, Environ
+from .request import Request
+from typing import Any, Callable
+from .handler import handle_request
+
+# def app(environ: Environ, start_response):
+
+#     request = Request(environ=environ)
+#     print(request.method,request.body, request.query, environ["SCRIPT_NAME"], environ["PATH_INFO"])
+#     # body = b"Hello world!\n"
+#     # status = "200 OK"
+#     # headers = [("Content-type", "text/plain")]
+#     # start_response(status, headers)
+#     # return [body]
+#     response = WSGIResponse(start_response,status="200 OK", headers=[("Content-type", "text/plain")])
+#     return response.send([b"Hello world!\n"])
+
 
 HTTP_METHODS = ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS", "HEAD"]
 
@@ -15,7 +34,12 @@ class SimpleAPI:
     Exposes HTTP methods to add routing and a method for running the app.
     """
 
-    __request = Request
+    def __init__(self) -> None:
+        self.handlers: list[RouteHandler] = []
+        self.body: dict[str, Any] = {}
+        self.extra: dict[Any, Any] = {}  # Extra dict for middleware to attach data to
+        self.query: dict[Any, list[str]] = {}
+        self.params: dict[str, str] = {}
 
     def handle_request_decorator(self, path: str, method: str):
         def decorator(handler: ViewFunction):
@@ -25,7 +49,7 @@ class SimpleAPI:
                 "method": method,
                 "handler": handler,
             }
-            self.__request.handlers.append(handler_dict)
+            self.handlers.append(handler_dict)
             return handler
 
         return decorator
@@ -51,12 +75,14 @@ class SimpleAPI:
     def options(self, path: str):
         return self.handle_request_decorator(path, "OPTIONS")
 
-    @validate_arguments
-    def run(self, host: str = "localhost", port: int = 8000):
-        web_server = ThreadingHTTPServer((host, port), self.__request)
-        try:
-            print("Server running at port", port)
-            web_server.serve_forever()
-        except KeyboardInterrupt:
-            web_server.server_close()
-            print("Server stopped")
+    def __call__(self, environ: Environ, start_response: Callable):
+        request = Request(environ=environ)
+        response = handle_request(request=request, handlers=self.handlers)
+        response.headers.append(("content-type", response.content_type))
+        wsgi_response = WSGIResponse(start_response, status=str(response.code), headers=response.headers)
+        if isinstance(response.body, bytes):
+            return wsgi_response.send(response.body)
+        elif isinstance(response.body, dict):
+            return wsgi_response.send(bytes(json.dumps(response.body, indent=2).encode("utf-8")))
+        else:
+            return wsgi_response.send(response.body.encode())

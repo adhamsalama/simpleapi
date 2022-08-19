@@ -73,8 +73,8 @@ def test_get_query_request():
     response = requests.get(f"http://localhost:8000/query?q=cats&p=dogs")
     assert response.ok
     assert json.loads(response.content.decode("utf-8")) == {
-        "q": ["cats"],
-        "p": ["dogs"],
+        "q": "cats",
+        "p": "dogs",
     }
 
 
@@ -92,4 +92,4 @@ def test_dependency_injection_error():
     )
     assert not response.ok
     assert response.status_code == 400
-    assert response.text == "Error: Property active is required to be of type bool"
+    assert response.text == "Error: Property active is required to be of type bool but it's missing"

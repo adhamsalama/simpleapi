@@ -31,7 +31,7 @@ def greet(request: Request):
 @app.post("/items")
 def post_item(request: Request):
     """Test post request returning body as JSON"""
-    return JSONResponse(message=request.body)
+    return JSONResponse(body=request.body)
 
 
 @app.get("/html")
@@ -39,24 +39,24 @@ def html():
     """Test returning an HTML string"""
     return Response(
         code=200,
-        message="<html><body><h1>Hi</h1></body></html>",
+        body="<html><body><h1>Hi</h1></body></html>",
         content_type="text/html",
     )
 
 
 @app.get("/400")
 def status_400():
-    return Response(code=400, message="", content_type="string")
+    return Response(code=400, body="", content_type="string")
 
 
 @app.put("/put")
 def put(request: Request):
-    return JSONResponse(message=request.body)
+    return JSONResponse(body=request.body)
 
 
 @app.patch("/patch")
 def patch(request: Request):
-    return JSONResponse(message=request.body)
+    return JSONResponse(body=request.body)
 
 
 @app.delete("/delete")
@@ -78,13 +78,13 @@ def options():
 @current_user
 def middleware(request: Request):
     """Tests middleware"""
-    return JSONResponse(message=request.extra["user"])
+    return JSONResponse(body=request.extra["user"])
 
 
 @app.get("/query")
 def query(request: Request):
     """Test request parameters"""
-    return JSONResponse(message=request.query)
+    return JSONResponse(body=request.query)
 
 
 @app.post("/dependency-injection")
@@ -99,5 +99,3 @@ def dependency_injection_error(name: str, price: float, active: bool):
     # ? SimpleAPI should automatically return an error with this ever executing
     return {"name": name, "price": price}
 
-
-app.run(port=8000)
