@@ -5,7 +5,7 @@ from simpleapi import JSONResponse, Request, Response, RouteHandler, SimpleAPI
 
 from middleware import current_user, require_validation  # type: ignore
 
-from .routers import item
+from routers import item # type: ignore
 
 app = SimpleAPI()
 
@@ -82,16 +82,19 @@ def greet_fullname(request: Request):
 
 @app.post("/items")
 @current_user
-@require_validation
-def post_item(name: str, price: float, request: Request):
+# @require_validation
+def post_item(name: str, price: float):
     """Returns the request body"""
     response = {}
     item = Item(name=name, price=price)
     items.append(item)
-    response["user"] = request.extra["user"]
+    # response["user"] = request.extra["user"]
     response["item"] = item.dict()
     return JSONResponse(body=response)
 
+@app.post("/pydantic-item")
+def post_pydantic_item(item: Item):
+    return item
 
 @app.get("/items")
 def get_item(request: Request):
