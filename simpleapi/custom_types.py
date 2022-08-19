@@ -1,9 +1,8 @@
-from typing import BinaryIO, Callable, TypedDict
+from typing import Callable, TypedDict
 
 from simpleapi.request import Request
 
 from .response import GenericResponse
-
 
 ViewFunction = Callable[..., GenericResponse]
 Middleware = Callable[[Request], None]

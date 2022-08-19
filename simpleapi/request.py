@@ -1,9 +1,6 @@
 import cgi
 import json
-from typing import Any
-from typing import BinaryIO, Callable, TypedDict
-
-from .response import GenericResponse
+from typing import Any, BinaryIO, TypedDict
 
 
 Environ = TypedDict(

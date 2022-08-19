@@ -4,9 +4,8 @@ import json
 from typing import Callable
 
 from .core import API
-from .custom_types import Environ
 from .handler import handle_request
-from .request import Request
+from .request import Environ, Request
 from .response import ParsingErrorResponse, WSGIResponse
 from .router import Router
 

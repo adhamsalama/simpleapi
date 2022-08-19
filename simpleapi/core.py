@@ -1,6 +1,6 @@
 from typing import Any
 
-from .custom_types import RouteHandler, ViewFunction, Middleware
+from .custom_types import Middleware, RouteHandler, ViewFunction
 
 
 class API:
