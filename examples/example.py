@@ -3,17 +3,20 @@
 from pydantic import BaseModel
 from simpleapi import JSONResponse, Request, Response, RouteHandler, SimpleAPI
 
-from middleware import current_user, require_validation  # type: ignore
+# from middleware import current_user, require_validation  # type: ignore
 
-from routers import item # type: ignore
+from .routers import item  # type: ignore
 
 app = SimpleAPI()
+
 
 @app.get("/hello")
 def hello():
     return "Hello, World!"
 
+
 app.add_router(prefix="/router", router=item.router)
+
 
 class Item(BaseModel):
     name: str
@@ -81,7 +84,7 @@ def greet_fullname(request: Request):
 
 
 @app.post("/items")
-@current_user
+# @current_user
 # @require_validation
 def post_item(name: str, price: float):
     """Returns the request body"""
@@ -92,9 +95,11 @@ def post_item(name: str, price: float):
     response["item"] = item.dict()
     return JSONResponse(body=response)
 
+
 @app.post("/pydantic-item")
 def post_pydantic_item(item: Item):
     return item
+
 
 @app.get("/items")
 def get_item(request: Request):
@@ -120,7 +125,9 @@ def save_image(request: Request):
         print("Error while trying to save image")
         print(str(e))
         return JSONResponse(code=400, body={"body": "Invalid image"})
-    return Response(body=image, content_type="image/*") # Return the image as a response
+    return Response(
+        body=image, content_type="image/*"
+    )  # Return the image as a response
 
 
 @app.get("/html")

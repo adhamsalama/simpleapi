@@ -5,7 +5,12 @@ from pydantic import BaseModel, ValidationError
 
 from .custom_types import RouteHandler
 from .request import Request
-from .response import JSONResponse, Response
+from .response import (
+    JSONResponse,
+    NotFoundErrorResponse,
+    Response,
+    ValidationErrorResponse,
+)
 
 
 def handle_request(request: Request, handlers: list[RouteHandler]) -> Response:
@@ -19,9 +24,7 @@ def handle_request(request: Request, handlers: list[RouteHandler]) -> Response:
         if "{" in handler["path"] and "}" in handler["path"]:  # ['/greet/{name}']
             # ? Ignore first slash
             # ! This wont work for trailing backslash
-            handler_path = handler["path"].split("/")[
-                1:
-            ]  # path = ['greet', '{name}']
+            handler_path = handler["path"].split("/")[1:]  # path = ['greet', '{name}']
             request_path = request.path.split("/")[1:]
             if len(handler_path) == len(request_path):
                 is_dynamic = True
@@ -46,14 +49,69 @@ def handle_request(request: Request, handlers: list[RouteHandler]) -> Response:
                         try:
                             dependency_injection[k] = v.parse_obj(request.body[k])
                         except ValidationError as e:
-                            return Response(code=403, body={"error": {"fields": k, "info": e.errors()}}, content_type="application/json")
+                            # return Response(
+                            #     code=403,
+                            #     body={"error": {"fields": k, "info": e.errors()}},
+                            #     content_type="application/json",
+                            # )
+                            return ValidationErrorResponse(
+                                messages={"errors": e.errors()}  # type: ignore
+                            )
                     else:
-                        return Response(code=403, body={"error": {"fields": k, "info": f"Property {k} is required to be of type {v.__name__}"}}, content_type="application/json")
+                        # return Response(
+                        #     code=403,
+                        #     body={
+                        #         "error": {
+                        #             "fields": k,
+                        #             "info": f"Property {k} is required to be of type {v.__name__}",
+                        #         }
+                        #     },
+                        #     content_type="application/json",
+                        # )
+                        return ValidationErrorResponse(
+                            messages={
+                                "errors": [
+                                    {
+                                        "loc": [k],
+                                        "msg": f"Property {k} is required to be of type {v.__name__}",
+                                    }
+                                ]
+                            }
+                        )
                 else:
-                    return Response(code=403, body=f"Error: Property {k} is required to be of type {v.__name__} but it's missing", content_type="string")
+                    # return Response(
+                    #     code=403,
+                    #     body=f"Error: Property {k} is required to be of type {v.__name__} but it's missing",
+                    #     content_type="string",
+                    # )
+                    return ValidationErrorResponse(
+                        messages={
+                            "errors": [
+                                {
+                                    "loc": [k],
+                                    "msg": f"Property {k} is required to be of type {v.__name__} but it's missing",
+                                }
+                            ]
+                        }
+                    )
             if handler_type_hints and not dependency_injection:
-                return Response(code=403, body={"errors": {"fields": handler_type_hints.keys(), "types": [t.__name__ for t in handler_type_hints.values()]}}, content_type="string")
-                
+                # return Response(
+                #     code=403,
+                #     body={
+                #         "errors": [{
+                #             "fields": handler_type_hints.keys(),
+                #             "types": [t.__name__ for t in handler_type_hints.values()],
+                #         }]
+                #     },
+                #     content_type="application/json",
+                # )
+                return ValidationErrorResponse(
+                    messages={
+                        "errors": [
+                            {"loc": ["body"], "msg": "Required fields are not supplied"}
+                        ]
+                    }
+                )
             response = handler["handler"](**dependency_injection)
             if isinstance(response, str):
                 constructed_response = Response(
@@ -84,4 +142,5 @@ def handle_request(request: Request, handlers: list[RouteHandler]) -> Response:
             else:
                 raise Exception("Unsupported Return Type from View Function")
             return constructed_response
-    return Response(code=404, body="404", content_type="string")
+    # return Response(code=404, body="404", content_type="string")
+    return NotFoundErrorResponse()

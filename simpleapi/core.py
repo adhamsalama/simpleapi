@@ -1,5 +1,3 @@
-
-
 from typing import Any
 
 from .custom_types import RouteHandler, ViewFunction
@@ -8,7 +6,7 @@ from .custom_types import RouteHandler, ViewFunction
 class API:
     """
     Core API
-    
+
     Exposes HTTP methods to add routing and a method for running the app.
     """
 
