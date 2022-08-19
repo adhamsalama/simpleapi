@@ -1,5 +1,6 @@
 import json
-from typing import Any, Callable, TypeVar, TypedDict
+from typing import Any, Callable, TypedDict, TypeVar
+
 from pydantic import BaseModel
 
 

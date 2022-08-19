@@ -37,6 +37,9 @@ def handle_request(request: Request, handlers: list[RouteHandler]) -> Response:
         if handler["method"] == request.method and (
             handler["path"] == request.path or is_dynamic
         ):
+            # Apply middleware
+            for middleware in handler["middleware"]:
+                middleware(request)
             handler_type_hints = get_type_hints(handler["handler"])
             dependency_injection: dict[str, Any] = {}
             for k, v in handler_type_hints.items():
@@ -49,25 +52,10 @@ def handle_request(request: Request, handlers: list[RouteHandler]) -> Response:
                         try:
                             dependency_injection[k] = v.parse_obj(request.body[k])
                         except ValidationError as e:
-                            # return Response(
-                            #     code=403,
-                            #     body={"error": {"fields": k, "info": e.errors()}},
-                            #     content_type="application/json",
-                            # )
                             return ValidationErrorResponse(
                                 messages={"errors": e.errors()}  # type: ignore
                             )
                     else:
-                        # return Response(
-                        #     code=403,
-                        #     body={
-                        #         "error": {
-                        #             "fields": k,
-                        #             "info": f"Property {k} is required to be of type {v.__name__}",
-                        #         }
-                        #     },
-                        #     content_type="application/json",
-                        # )
                         return ValidationErrorResponse(
                             messages={
                                 "errors": [
@@ -79,11 +67,6 @@ def handle_request(request: Request, handlers: list[RouteHandler]) -> Response:
                             }
                         )
                 else:
-                    # return Response(
-                    #     code=403,
-                    #     body=f"Error: Property {k} is required to be of type {v.__name__} but it's missing",
-                    #     content_type="string",
-                    # )
                     return ValidationErrorResponse(
                         messages={
                             "errors": [
@@ -95,16 +78,6 @@ def handle_request(request: Request, handlers: list[RouteHandler]) -> Response:
                         }
                     )
             if handler_type_hints and not dependency_injection:
-                # return Response(
-                #     code=403,
-                #     body={
-                #         "errors": [{
-                #             "fields": handler_type_hints.keys(),
-                #             "types": [t.__name__ for t in handler_type_hints.values()],
-                #         }]
-                #     },
-                #     content_type="application/json",
-                # )
                 return ValidationErrorResponse(
                     messages={
                         "errors": [
@@ -142,5 +115,4 @@ def handle_request(request: Request, handlers: list[RouteHandler]) -> Response:
             else:
                 raise Exception("Unsupported Return Type from View Function")
             return constructed_response
-    # return Response(code=404, body="404", content_type="string")
     return NotFoundErrorResponse()

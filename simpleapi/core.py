@@ -1,6 +1,6 @@
 from typing import Any
 
-from .custom_types import RouteHandler, ViewFunction
+from .custom_types import Middleware, RouteHandler, ViewFunction
 
 
 class API:
@@ -17,36 +17,39 @@ class API:
         self.query: dict[Any, list[str]] = {}
         self.params: dict[str, str] = {}
 
-    def handle_request_decorator(self, path: str, method: str):
+    def handle_request_decorator(
+        self, path: str, method: str, middleware: list[Middleware] | None
+    ):
         def decorator(handler: ViewFunction):
 
             handler_dict: RouteHandler = {
                 "path": path,
                 "method": method,
                 "handler": handler,
+                "middleware": middleware if middleware else [],
             }
             self.handlers.append(handler_dict)
             return handler
 
         return decorator
 
-    def get(self, path: str):
-        return self.handle_request_decorator(path, "GET")
+    def get(self, path: str, middleware: list[Middleware] | None = None):
+        return self.handle_request_decorator(path, "GET", middleware)
 
-    def post(self, path: str):
-        return self.handle_request_decorator(path, "POST")
+    def post(self, path: str, middleware: list[Middleware] | None = None):
+        return self.handle_request_decorator(path, "POST", middleware)
 
-    def put(self, path: str):
-        return self.handle_request_decorator(path, "PUT")
+    def put(self, path: str, middleware: list[Middleware] | None = None):
+        return self.handle_request_decorator(path, "PUT", middleware)
 
-    def patch(self, path: str):
-        return self.handle_request_decorator(path, "PATCH")
+    def patch(self, path: str, middleware: list[Middleware] | None = None):
+        return self.handle_request_decorator(path, "PATCH", middleware)
 
-    def delete(self, path: str):
-        return self.handle_request_decorator(path, "DELETE")
+    def delete(self, path: str, middleware: list[Middleware] | None = None):
+        return self.handle_request_decorator(path, "DELETE", middleware)
 
-    def head(self, path: str):
-        return self.handle_request_decorator(path, "HEAD")
+    def head(self, path: str, middleware: list[Middleware] | None = None):
+        return self.handle_request_decorator(path, "HEAD", middleware)
 
-    def options(self, path: str):
-        return self.handle_request_decorator(path, "OPTIONS")
+    def options(self, path: str, middleware: list[Middleware] | None = None):
+        return self.handle_request_decorator(path, "OPTIONS", middleware)

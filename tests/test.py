@@ -1,4 +1,5 @@
 import json
+
 import requests
 
 
@@ -25,7 +26,7 @@ def test_post_request_json():
 def test_html_response():
     response = requests.get("http://localhost:8000/html")
     assert response.ok
-    assert response.headers["content-type"] == "text/html"
+    assert response.headers["content-type"] == "text/html; charset=UTF-8"
 
 
 def test_status_code_400():
@@ -62,11 +63,11 @@ def test_options_request():
     assert response.ok
 
 
-# def test_middleware():
-#     user = {"username": "adhom", "email": "adhom@adhom.com"}
-#     response = requests.post("http://localhost:8000/middleware", json=user)
-#     assert response.ok
-#     assert json.loads(response.content.decode("utf-8")) == user
+def test_middleware():
+    user = {"username": "adhom", "email": "adhom@adhom.com"}
+    response = requests.post("http://localhost:8000/middleware", json=user)
+    assert response.ok
+    assert json.loads(response.content.decode("utf-8")) == user
 
 
 def test_get_query_request():
