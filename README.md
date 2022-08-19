@@ -28,4 +28,4 @@ def hello():
 ```
 Run it with ```gunicorn app:app```
 
-More examples can be found in /examples
+More examples can be found in [examples](./examples)
