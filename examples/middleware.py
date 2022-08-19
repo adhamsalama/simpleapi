@@ -25,7 +25,7 @@ def require_validation(f: ViewFunction):
         print("require validation middleware")
         user = request.extra.get("user", None)
         if user is None:
-            return JSONResponse(code=400, message={"message": "Validation required"})
+            return JSONResponse(code=400, body={"message": "Validation required"})
         return f(request)
 
     return decorator

@@ -1,10 +1,9 @@
 from simpleapi import Request, Response, JSONResponse, SimpleAPI, response, custom_types
+from .routers import test
 
 app = SimpleAPI()
 
-
-from simpleapi import Request, JSONResponse
-
+app.add_router(prefix="/router", router=test.router)
 
 def current_user(f: custom_types.ViewFunction):
     """Middleware that adds user data to the request"""

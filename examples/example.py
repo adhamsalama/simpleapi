@@ -1,11 +1,19 @@
 # Example of using APF
 
-from simpleapi import SimpleAPI, Request, Response, JSONResponse, RouteHandler
-from middleware import current_user, require_validation  # type: ignore
 from pydantic import BaseModel
+from simpleapi import JSONResponse, Request, Response, RouteHandler, SimpleAPI
+
+from middleware import current_user, require_validation  # type: ignore
+
+from .routers import item
 
 app = SimpleAPI()
 
+@app.get("/hello")
+def hello():
+    return "Hello, World!"
+
+app.add_router(prefix="/router", router=item.router)
 
 class Item(BaseModel):
     name: str
@@ -59,12 +67,6 @@ def index6():
     return item
 
 
-@app.get("/hello")
-def hello(request: Request):
-    """Returns hello world in JSON format"""
-    return JSONResponse(body={"hello": "world"})
-
-
 @app.get("/greet/{name}")
 def greet(request: Request):
     """Dynamic route that greets users"""
@@ -81,10 +83,10 @@ def greet_fullname(request: Request):
 @app.post("/items")
 @current_user
 @require_validation
-def post_item(request: Request):
+def post_item(name: str, price: float, request: Request):
     """Returns the request body"""
     response = {}
-    item = Item(**request.body)
+    item = Item(name=name, price=price)
     items.append(item)
     response["user"] = request.extra["user"]
     response["item"] = item.dict()

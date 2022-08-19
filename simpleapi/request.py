@@ -1,7 +1,9 @@
+import cgi
 import json
 from typing import Any
+
 from .custom_types import Environ
-import cgi
+
 
 class Request:
     """HTTP Request"""
