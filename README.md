@@ -14,6 +14,8 @@ How to install:
 
 An example of using SimpleAPI:
 
+Copy the following code to a file called ```app.py```
+
 ```python
 from simpleapi import SimpleAPI
 
@@ -23,9 +25,7 @@ app = SimpleAPI()
 def hello():
     """Returns hello world as a string"""
     return "Hello, world!"
-
-app.run(port=8000)
-
 ```
+Run it with ```gunicorn app:app```
 
 More examples can be found in /examples
