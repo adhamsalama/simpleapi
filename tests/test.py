@@ -91,7 +91,7 @@ def test_dependency_injection_error():
         "http://localhost:8000/dependency-injection-error", json=item
     )
     assert not response.ok
-    assert response.status_code == 400
+    assert response.status_code == 403
     assert response.text == "Error: Property active is required to be of type bool but it's missing"
 
 def test_router_get():
