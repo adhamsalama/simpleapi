@@ -1,7 +1,7 @@
 import json
 from typing import Any, get_type_hints
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError
 
 from .custom_types import RouteHandler
 from .request import Request
@@ -42,13 +42,18 @@ def handle_request(request: Request, handlers: list[RouteHandler]) -> Response:
                 elif k in request.body.keys():
                     if isinstance(request.body[k], v):
                         dependency_injection[k] = request.body[k]
+                    elif type(v) == type(BaseModel):
+                        try:
+                            dependency_injection[k] = v.parse_obj(request.body[k])
+                        except ValidationError as e:
+                            return Response(code=403, body={"error": {"fields": k, "info": e.errors()}}, content_type="application/json")
                     else:
-                        error_response = Response(code=400, body=f"Error: Property {k} is required to be of type {v.__name__}", content_type="string")
-                        return error_response
+                        return Response(code=403, body={"error": {"fields": k, "info": f"Property {k} is required to be of type {v.__name__}"}}, content_type="application/json")
                 else:
-                    error_response = Response(code=400, body=f"Error: Property {k} is required to be of type {v.__name__} but it's missing", content_type="string")
-                    return error_response
-
+                    return Response(code=403, body=f"Error: Property {k} is required to be of type {v.__name__} but it's missing", content_type="string")
+            if handler_type_hints and not dependency_injection:
+                return Response(code=403, body={"errors": {"fields": handler_type_hints.keys(), "types": [t.__name__ for t in handler_type_hints.values()]}}, content_type="string")
+                
             response = handler["handler"](**dependency_injection)
             if isinstance(response, str):
                 constructed_response = Response(
@@ -79,8 +84,4 @@ def handle_request(request: Request, handlers: list[RouteHandler]) -> Response:
             else:
                 raise Exception("Unsupported Return Type from View Function")
             return constructed_response
-    return not_found()
-
-def not_found():
-    error_response = Response(code=404, body="404", content_type="string")
-    return error_response
+    return Response(code=404, body="404", content_type="string")
