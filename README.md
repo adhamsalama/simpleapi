@@ -2,6 +2,8 @@
 
 SimpleAPI is a minimalistic, unopinionated web framework for Python, inspired by FastAPI & Flask.
 
+SimpleAPI is a WSGI compliant framework.
+
 This is a hobby project made for educational purposes because I want to try learning writing a web server framework.
 
 So, this is obviously not meant for production environments.
@@ -14,7 +16,7 @@ How to install:
 
 An example of using SimpleAPI:
 
-Copy the following code to a file called ```app.py```
+Copy the following code to a file called `app.py`
 
 ```python
 from simpleapi import SimpleAPI
@@ -26,6 +28,7 @@ def hello():
     """Returns hello world as a string"""
     return "Hello, world!"
 ```
-Run it with ```gunicorn app:app```
 
-More examples can be found in [examples](./examples)
+Run it with `gunicorn app:app`
+
+More examples can be found in [tests](./tests)
