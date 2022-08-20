@@ -3,7 +3,17 @@ from simpleapi import JSONResponse, Request, Response, SimpleAPI
 
 from .routers import item
 
-app = SimpleAPI()
+
+def current_user(request: Request):
+    """Dummy Middleware that adds user data to the request"""
+    request.extra["user"] = request.body
+
+
+def global_middleware(request: Request):
+    request.extra["global_middleware"] = True
+
+
+app = SimpleAPI(middleware=[global_middleware])
 
 app.add_router(prefix="/router", router=item.router)
 
@@ -16,15 +26,15 @@ class Item(BaseModel):
 items: list[Item] = []
 
 
-def current_user(request: Request):
-    """Middleware that adds user data to the request"""
-    request.extra["user"] = request.body
-
-
 @app.get("/hello")
 def hello():
     """Test hello world"""
     return "Hello, world!"
+
+
+@app.get("/global_middleware")
+def global_middleware_router(request: Request):
+    return request.extra["global_middleware"]
 
 
 @app.get("/greet/{name}")

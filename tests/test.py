@@ -9,11 +9,35 @@ def test_hello_world():
     assert response.content.decode("utf-8") == "Hello, world!"
 
 
+def test_global_middleware():
+    response = requests.get("http://localhost:8000/global_middleware")
+    assert response.ok
+    assert response.content.decode("utf-8") == "True"
+
+
+def test_global_and_router_middleware():
+    response = requests.get("http://localhost:8000/router/router_middleware")
+    assert response.ok
+    assert response.json() == {"global": True, "router": True}
+
+
 def test_dynamic_routing():
     name = "adhom"
-    response = requests.get(f"http://localhost:8000/greeting/{name}")
+    response = requests.get(f"http://localhost:8000/greet/{name}")
     assert response.ok
     assert response.content.decode("utf-8") == f"Greetings, {name}"
+
+
+def test_router():
+    response = requests.get("http://localhost:8000/router/test")
+    assert response.ok
+    assert response.content.decode("utf-8") == "test"
+
+
+def test_dynamic_routing_for_router():
+    response = requests.get("http://localhost:8000/router/dynamic/test")
+    assert response.ok
+    assert response.content.decode("utf-8") == "dynamic"
 
 
 def test_post_request_json():
