@@ -34,7 +34,7 @@ class SimpleAPI(API):
                 "method": method,
                 "handler": handler,
                 "middleware": middleware if middleware else [],
-                "component_id": 1,
+                "router_id": 1,
             }
             self.handlers.append(handler_dict)
             return handler

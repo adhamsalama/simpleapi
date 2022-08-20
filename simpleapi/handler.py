@@ -51,8 +51,8 @@ def handle_request(
             # Get component middleware from app_middleware by using the component_id in the handler
             # ? Skip it if the component_id = 1 (Global app middleware, was already applied)
             component_middleware: list[Middleware] = (
-                app_middleware[handler["component_id"]]
-                if handler["component_id"] != 1
+                app_middleware[handler["router_id"]]
+                if handler["router_id"] != 1
                 else []
             )
             for middleware in component_middleware:

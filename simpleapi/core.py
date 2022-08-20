@@ -28,7 +28,7 @@ class API:
                 "method": method,
                 "handler": handler,
                 "middleware": middleware if middleware else [],
-                "component_id": id(self),
+                "router_id": id(self),
             }
             self.handlers.append(handler_dict)
             return handler

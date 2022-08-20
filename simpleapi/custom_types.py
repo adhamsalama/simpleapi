@@ -14,4 +14,4 @@ class RouteHandler(TypedDict):
     method: str
     handler: ViewFunction
     middleware: list[Middleware]
-    component_id: int
+    router_id: int
