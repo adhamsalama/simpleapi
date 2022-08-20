@@ -1,9 +1,52 @@
 from pydantic import BaseModel
 from simpleapi import JSONResponse, Request, Response, SimpleAPI
+from simpleapi.response import ErrorResponse
 
 from .routers import item
 
-app = SimpleAPI()
+
+def current_user(request: Request):
+    """Dummy Middleware that adds user data to the request"""
+    request.extra["user"] = request.body
+
+
+def global_middleware(request: Request):
+    request.extra["global_middleware"] = True
+
+
+def always_reject_middleware(request: Request):
+    return ErrorResponse(
+        code=401, messages={"errors": [{"loc": ["body"], "msg": "Not Authorized"}]}
+    )
+
+
+app = SimpleAPI(middleware=[global_middleware])
+
+
+@app.get("/test1/{test1}")
+def aa(request: Request):
+    return request.params
+
+
+@app.get("/test2/{test2}")
+def ba(request: Request):
+    return request.params
+
+
+@app.get("/test1/{test1}/test1")
+def a(request: Request):
+    return request.params
+
+
+@app.get("/test1/{test2}/test2")
+def b(request: Request):
+    return request.params
+
+
+@app.get("/unauthorized", middleware=[always_reject_middleware])
+def reject():
+    return "This shouldn't be returned"
+
 
 app.add_router(prefix="/router", router=item.router)
 
@@ -16,15 +59,15 @@ class Item(BaseModel):
 items: list[Item] = []
 
 
-def current_user(request: Request):
-    """Middleware that adds user data to the request"""
-    request.extra["user"] = request.body
-
-
 @app.get("/hello")
 def hello():
     """Test hello world"""
     return "Hello, world!"
+
+
+@app.get("/global_middleware")
+def global_middleware_router(request: Request):
+    return request.extra["global_middleware"]
 
 
 @app.get("/greet/{name}")

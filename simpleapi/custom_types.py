@@ -2,10 +2,11 @@ from typing import Callable, TypedDict
 
 from simpleapi.request import Request
 
-from .response import GenericResponse
+from .response import GenericResponse, Response
 
 ViewFunction = Callable[..., GenericResponse]
-Middleware = Callable[[Request], None]
+Middleware = Callable[[Request], Response | None]
+ComponentMiddleware = dict[int, list[Middleware]]
 
 
 class RouteHandler(TypedDict):
@@ -13,3 +14,4 @@ class RouteHandler(TypedDict):
     method: str
     handler: ViewFunction
     middleware: list[Middleware]
+    router_id: int
