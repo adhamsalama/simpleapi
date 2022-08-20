@@ -3,7 +3,7 @@ from typing import Any, get_type_hints
 
 from pydantic import BaseModel, ValidationError
 
-from .custom_types import RouteHandler
+from .custom_types import ComponentMiddleware, Middleware, RouteHandler
 from .request import Request
 from .response import (
     JSONResponse,
@@ -13,31 +13,51 @@ from .response import (
 )
 
 
-def handle_request(request: Request, handlers: list[RouteHandler]) -> Response:
+def handle_request(
+    request: Request, handlers: list[RouteHandler], app_middleware: ComponentMiddleware
+) -> Response:
     """
     A method that tries to find the matching route handler.
     """
 
     for handler in handlers:
         # ? Check dynamic routes
-        is_dynamic = False
+        matched_dynamic_path = False
         if "{" in handler["path"] and "}" in handler["path"]:  # ['/greet/{name}']
             # ? Ignore first slash
             # ! This wont work for trailing backslash
             handler_path = handler["path"].split("/")[1:]  # path = ['greet', '{name}']
             request_path = request.path.split("/")[1:]
             if len(handler_path) == len(request_path):
-                is_dynamic = True
                 for handler_part, request_part in zip(handler_path, request_path):
                     if (
                         handler_part[0] == "{" and handler_part[-1] == "}"
                     ):  # handler_part = '{name}'
                         request.params[handler_part[1:-1]] = request_part
 
+                    elif handler_part == request_part:
+                        matched_dynamic_path = True
+                    else:
+                        matched_dynamic_path = False
+
         if handler["method"] == request.method and (
-            handler["path"] == request.path or is_dynamic
+            handler["path"] == request.path or matched_dynamic_path
         ):
-            # Apply middleware
+            # Apply global app middleware
+            # ? Global app middleware that runs for all route handlers is number 1
+            for middleware in app_middleware[1]:
+                middleware(request)
+            # Add component middleware
+            # Get component middleware from app_middleware by using the component_id in the handler
+            # ? Skip it if the component_id = 1 (Global app middleware, was already applied)
+            component_middleware: list[Middleware] = (
+                app_middleware[handler["component_id"]]
+                if handler["component_id"] != 1
+                else []
+            )
+            for middleware in component_middleware:
+                middleware(request)
+            # Apply handlers middleware
             for middleware in handler["middleware"]:
                 middleware(request)
             handler_type_hints = get_type_hints(handler["handler"])
@@ -106,7 +126,6 @@ def handle_request(request: Request, handlers: list[RouteHandler]) -> Response:
                     content_type="application/json",
                 )
             elif isinstance(response, dict):
-                # Dict
                 constructed_response = Response(
                     code=200,
                     body=json.dumps(response),

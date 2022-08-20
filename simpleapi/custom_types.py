@@ -6,6 +6,7 @@ from .response import GenericResponse
 
 ViewFunction = Callable[..., GenericResponse]
 Middleware = Callable[[Request], None]
+ComponentMiddleware = dict[int, list[Middleware]]
 
 
 class RouteHandler(TypedDict):
@@ -13,3 +14,4 @@ class RouteHandler(TypedDict):
     method: str
     handler: ViewFunction
     middleware: list[Middleware]
+    component_id: int
