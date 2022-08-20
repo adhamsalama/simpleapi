@@ -21,32 +21,17 @@ def handle_request(
     """
 
     for handler in handlers:
-        # ? Check dynamic routes
-        matched_dynamic_path = False
-        if "{" in handler["path"] and "}" in handler["path"]:  # ['/greet/{name}']
-            # ? Ignore first slash
-            # ! This wont work for trailing backslash
-            handler_path = handler["path"].split("/")[1:]  # path = ['greet', '{name}']
-            request_path = request.path.split("/")[1:]
-            if len(handler_path) == len(request_path):
-                for handler_part, request_part in zip(handler_path, request_path):
-                    if (
-                        handler_part[0] == "{" and handler_part[-1] == "}"
-                    ):  # handler_part = '{name}'
-                        request.params[handler_part[1:-1]] = request_part
-
-                    elif handler_part == request_part:
-                        matched_dynamic_path = True
-                    else:
-                        matched_dynamic_path = False
-
         if handler["method"] == request.method and (
-            handler["path"] == request.path or matched_dynamic_path
+            handler["path"] == request.path or match_dynamic_path(request, handler)
         ):
             # Apply global app middleware
             # ? Global app middleware that runs for all route handlers is number 1
-            for middleware in app_middleware[1]:
-                middleware(request)
+            middleware_response: Response | None = apply_middleware(
+                request, app_middleware[1]
+            )
+            if middleware_response:
+                return middleware_response
+
             # Add component middleware
             # Get component middleware from app_middleware by using the component_id in the handler
             # ? Skip it if the component_id = 1 (Global app middleware, was already applied)
@@ -55,11 +40,15 @@ def handle_request(
                 if handler["router_id"] != 1
                 else []
             )
-            for middleware in component_middleware:
-                middleware(request)
+            middleware_response = apply_middleware(request, component_middleware)
+            if middleware_response:
+                return middleware_response
+
             # Apply handlers middleware
-            for middleware in handler["middleware"]:
-                middleware(request)
+            middleware_response = apply_middleware(request, handler["middleware"])
+            if middleware_response:
+                return middleware_response
+
             handler_type_hints = get_type_hints(handler["handler"])
             dependency_injection: dict[str, Any] = {}
             for k, v in handler_type_hints.items():
@@ -135,3 +124,35 @@ def handle_request(
                 raise Exception("Unsupported Return Type from View Function")
             return constructed_response
     return NotFoundErrorResponse()
+
+
+def match_dynamic_path(request: Request, handler: RouteHandler):
+    """Returns True if it matches a dynamic path and populates the request params"""
+    # ? Check dynamic routes
+    matched_dynamic_path = False
+    if "{" in handler["path"] and "}" in handler["path"]:  # ['/greet/{name}']
+        # ? Ignore first slash
+        # ! This wont work for trailing backslash
+        handler_path = handler["path"].split("/")[1:]  # path = ['greet', '{name}']
+        request_path = request.path.split("/")[1:]
+        if len(handler_path) == len(request_path):
+            for handler_part, request_part in zip(handler_path, request_path):
+                if (
+                    handler_part[0] == "{" and handler_part[-1] == "}"
+                ):  # handler_part = '{name}'
+                    request.params[handler_part[1:-1]] = request_part
+                elif handler_part == request_part:
+                    matched_dynamic_path = True
+                else:
+                    matched_dynamic_path = False
+                    request.params = {}
+                    break
+    return matched_dynamic_path
+
+
+def apply_middleware(request: Request, middleware: list[Middleware]) -> Response | None:
+    for m in middleware:
+        middlware_response = m(request)
+        if middlware_response:
+            return middlware_response
+    return None
