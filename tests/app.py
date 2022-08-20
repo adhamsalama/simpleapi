@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from simpleapi import JSONResponse, Request, Response, SimpleAPI
+from simpleapi.response import ErrorResponse
 
 from .routers import item
 
@@ -13,7 +14,39 @@ def global_middleware(request: Request):
     request.extra["global_middleware"] = True
 
 
+def always_reject_middleware(request: Request):
+    return ErrorResponse(
+        code=401, messages={"errors": [{"loc": ["body"], "msg": "Not Authorized"}]}
+    )
+
+
 app = SimpleAPI(middleware=[global_middleware])
+
+
+@app.get("/test1/{test1}")
+def aa(request: Request):
+    return request.params
+
+
+@app.get("/test2/{test2}")
+def ba(request: Request):
+    return request.params
+
+
+@app.get("/test1/{test1}/test1")
+def a(request: Request):
+    return request.params
+
+
+@app.get("/test1/{test2}/test2")
+def b(request: Request):
+    return request.params
+
+
+@app.get("/unauthorized", middleware=[always_reject_middleware])
+def reject():
+    return "This shouldn't be returned"
+
 
 app.add_router(prefix="/router", router=item.router)
 

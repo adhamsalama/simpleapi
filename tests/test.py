@@ -21,11 +21,36 @@ def test_global_and_router_middleware():
     assert response.json() == {"global": True, "router": True}
 
 
+def test_rejecting_middleware():
+    name = "adhom"
+    response = requests.get(f"http://localhost:8000/unauthorized")
+    assert not response.ok
+    assert response.status_code == 401
+
+
 def test_dynamic_routing():
     name = "adhom"
     response = requests.get(f"http://localhost:8000/greet/{name}")
     assert response.ok
     assert response.content.decode("utf-8") == f"Greetings, {name}"
+
+
+def test_dynamic_route_doesnt_save_other_params():
+    response = requests.get(f"http://localhost:8000/test1/ayo/test1")
+    assert response.ok
+    assert response.json() == {"test1": "ayo"}
+    response = requests.get(f"http://localhost:8000/test1/aloha/test1")
+    assert response.ok
+    assert response.json() == {"test1": "aloha"}
+    response = requests.get(f"http://localhost:8000/test1/oya/test2")
+    assert response.ok
+    assert response.json() == {"test2": "oya"}
+    response = requests.get(f"http://localhost:8000/test1/ayo")
+    assert response.ok
+    assert response.json() == {"test1": "ayo"}
+    response = requests.get(f"http://localhost:8000/test2/oya")
+    assert response.ok
+    assert response.json() == {"test2": "oya"}
 
 
 def test_router():
