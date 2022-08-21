@@ -25,7 +25,6 @@ app = SimpleAPI()
 
 @app.get("/hello")
 def hello():
-    """Returns hello world as a string"""
     return "Hello, world!"
 ```
 
