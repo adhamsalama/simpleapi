@@ -26,15 +26,11 @@ app = SimpleAPI(middleware=[global_middleware])
 @app.get("/set-cookie")
 def set_cookies(request: Request):
     """Sets cookies"""
-    return JSONResponse(
-        body=request.cookies,
-        headers=[
-            ("header1", "value1"),
-            ("Set-Cookie", "key1=value1; Path=/"),
-            ("Set-Cookie", "key2=value2; Path=/"),
-            ("Set-Cookie", "key3=value3;"),
-        ],
-    )
+    res = JSONResponse(body=request.cookies, headers=[("header1", "value1")])
+    res.set_cookie("key1", "value1")
+    res.set_cookie("key2", "value2")
+    res.set_cookie("key3", "value3")
+    return res
 
 
 @app.get("/set-headers")
