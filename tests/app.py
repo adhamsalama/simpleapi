@@ -23,6 +23,25 @@ def always_reject_middleware(request: Request):
 app = SimpleAPI(middleware=[global_middleware])
 
 
+@app.get("/set-cookie")
+def set_cookies(request: Request):
+    """Sets cookies"""
+    res = JSONResponse(body=request.cookies, headers=[("header1", "value1")])
+    res.set_cookie("key1", "value1")
+    res.set_cookie("key2", "value2")
+    res.set_cookie("key3", "value3")
+    return res
+
+
+@app.get("/set-headers")
+def set_headers(request: Request):
+    """Sets headers"""
+    return JSONResponse(
+        body=request.headers,
+        headers=[("header1", "value1"), ("header2", "value2"), ("header3", "value3")],
+    )
+
+
 @app.get("/test1/{test1}")
 def aa(request: Request):
     return request.params
@@ -60,7 +79,7 @@ items: list[Item] = []
 
 
 @app.get("/hello")
-def hello():
+def hello(request: Request):
     """Test hello world"""
     return "Hello, world!"
 

@@ -4,11 +4,12 @@ import json
 from typing import Callable
 
 from .core import API
+from .custom_types import ComponentMiddleware, Middleware, RouteHandler, ViewFunction
 from .handler import handle_request
-from .request import Environ, Request
+from .request import Request
 from .response import ParsingErrorResponse, WSGIResponse
 from .router import Router
-from .custom_types import Middleware, ComponentMiddleware, RouteHandler, ViewFunction
+from .utils import Environ
 
 
 class SimpleAPI(API):

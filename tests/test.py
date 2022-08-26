@@ -169,3 +169,45 @@ def test_not_found():
     assert not response.ok
     assert response.status_code == 404
     assert response.json() == {"errors": [{"loc": ["request"], "msg": "404 Not Found"}]}
+
+
+def test_set_cookies():
+    response = requests.get("http://localhost:8000/set-cookie")
+    assert response.ok
+    assert response.cookies.items() == [
+        ("key1", "value1"),
+        ("key2", "value2"),
+        ("key3", "value3"),
+    ]
+
+
+def test_reading_cookies():
+    cookies = {"name": "adhom", "age": "23"}
+    response = requests.get("http://localhost:8000/set-cookie", cookies=cookies)
+    assert response.ok
+    assert response.json() == cookies
+
+
+def test_set_headers():
+    response = requests.get("http://localhost:8000/set-headers")
+    assert response.ok
+    headers = [
+        ("header1", "value1"),
+        ("header2", "value2"),
+        ("header3", "value3"),
+    ]
+    for k, v in headers:
+        assert k in response.headers.keys()
+        assert v in response.headers.values()
+        assert response.headers[k] == v
+
+
+def test_reading_headers():
+    headers = {"name": "adhom", "age": "23"}
+    response = requests.get("http://localhost:8000/set-headers", headers=headers)
+    assert response.ok
+    json_response = response.json()
+    for k, v in headers.items():
+        assert k in json_response.keys()
+        assert v in json_response.values()
+        assert json_response[k] == v

@@ -41,23 +41,22 @@ class Response:
     def __init__(
         self,
         body: str | dict[str, Any] | list | bytes | ErrorMessage,
-        content_type: str,
+        content_type: str = "text/html; charset=UTF-8",
         headers: list[tuple[str, str]] | None = None,
         code: int = 200,
     ) -> None:
+        # ? If the developer should set the content-type using the content_type argument and not supply it again to the headers argument
         self.body: Any = body
         self.content_type: str = content_type
         self.headers: list[tuple[str, str]] = headers if headers else []
         self.headers.append(("content-type", content_type))
         self.code = code
-        # self.code: int = Field(default=200, ge=100, le=599)
-        # self.encoding: str = Field(default="utf-8")
 
     def set_header(self, header: str, value: str) -> None:
         self.headers.append((header, value))
 
-    def parse_body(self):
-        return self.body
+    def set_cookie(self, key: str, value: str):
+        self.set_header("Set-Cookie", f"{key}={value}")
 
 
 class WSGIResponse:
