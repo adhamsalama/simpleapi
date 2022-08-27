@@ -1,6 +1,6 @@
 # SimpleAPI
 
-SimpleAPI is a minimalistic, unopinionated, WSGI-compliant, microframework web framework for Python, inspired by FastAPI & Flask.
+SimpleAPI is a minimalistic, unopinionated, WSGI-compliant, microframework for Python, inspired by FastAPI & Flask.
 
 Source Code: [https://github.com/adhamsalama/simpleapi](https://github.com/adhamsalama/simpleapi)
 
