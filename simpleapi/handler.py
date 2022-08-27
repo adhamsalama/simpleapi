@@ -96,13 +96,9 @@ def handle_request(
                 )
             response = handler["handler"](**dependency_injection)
             if isinstance(response, str):
-                constructed_response = Response(
-                    code=200, body=response, content_type="string"
-                )
+                constructed_response = Response(code=200, body=response)
             elif isinstance(response, (int, float)):
-                constructed_response = Response(
-                    code=200, body=str(response), content_type="string"
-                )
+                constructed_response = Response(code=200, body=str(response))
             elif isinstance(response, JSONResponse):
                 constructed_response = response
             elif isinstance(response, Response):
