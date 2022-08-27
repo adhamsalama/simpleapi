@@ -9,7 +9,17 @@ theme:
   favicon: assets/favicon.png
   logo: assets/logo.png
   palette:
-    primary: blue
+    # primary: blue
+    - scheme: default
+      toggle:
+        icon: material/brightness-7 
+        name: Switch to dark mode
+  
+      # Palette toggle for dark mode
+    - scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
 markdown_extensions:
   - attr_list
   - pymdownx.emoji:

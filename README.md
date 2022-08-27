@@ -1,5 +1,6 @@
 # SimpleAPI
 
+![banner](./docs/assets/banner.png)
 SimpleAPI is a minimalistic, unopinionated web framework for Python, inspired by FastAPI & Flask.
 
 SimpleAPI is a WSGI compliant framework.
