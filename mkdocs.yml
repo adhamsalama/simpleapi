@@ -1,5 +1,6 @@
 site_name: SimpleAPI
 repo_url: https://github.com/adhamsalama/simpleapi
+repo_name: adhamsalama/simpleapi
 site_description: SimpleAPI is a minimalistic, unopinionated, WSGI-compliant, microframework web framework for Python, inspired by FastAPI & Flask.
 use_directory_urls: false
 docs_dir: docs
