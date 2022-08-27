@@ -15,6 +15,7 @@ Development of SimpleAPI is tracked at [this](https://github.com/users/adhamsala
 `pip install simplestapi`
 
 ## Usage
+
 An example of using SimpleAPI:
 
 Copy the following code to a file called `app.py`
@@ -32,3 +33,7 @@ def hello():
 Run it with `gunicorn app:app`
 
 More examples can be found in [tests](./tests)
+
+## Documentation
+
+[https://adhamsalama.github.io/simpleapo](https://adhamsalama.github.io/simpleapo)
