@@ -186,6 +186,11 @@ def test_reading_cookies():
     response = requests.get("http://localhost:8000/set-cookie", cookies=cookies)
     assert response.ok
     assert response.json() == cookies
+    # ! Test cookies whose value contain a "="
+    cookies = {"jwt": "sdasdasdasd=="}
+    response = requests.get("http://localhost:8000/set-cookie", cookies=cookies)
+    assert response.ok
+    assert response.json() == cookies
 
 
 def test_set_headers():

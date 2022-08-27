@@ -72,7 +72,10 @@ def parse_cookies(environ: Environ) -> dict[str, str]:
         {
             k: v
             for [k, v] in [
-                cookie.split("=")
+                [
+                    cookie[: cookie.index("=")],
+                    cookie[cookie.index("=") + 1 :],
+                ]  # Fix bug where cookie value contains "="
                 for cookie in environ["HTTP_COOKIE"].replace(" ", "").split(";")
             ]
         }
