@@ -32,6 +32,6 @@ SimpleAPI is made only for educational purposes, I have been using Python framew
 
 Note that here it's "simplestapi" instead of "simpleapi". This is because the name "simpleapi" is already taken.
 
-You will also need to install [gunicorn](https://gunicorn.org) to the application.
+You will also need to install [gunicorn](https://gunicorn.org) to run the application.
 
 `pip install gunicorn`
