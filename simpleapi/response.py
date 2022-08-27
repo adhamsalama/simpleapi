@@ -25,17 +25,13 @@ start_response_function = Callable[[str, list[tuple[str, str]]], Any]
 
 class Response:
     """
-    HTTP Response Class.
-
-    This should be used instead of using the Request class directly.
+    HTTP Response.
 
     Properties:
         code: Response status code, default = 200
         message: Response body
         headers: Response headers
-        content_type: Response content-type
-        encoding: Response encoding
-        parse_message: Parses the message into the correct format
+        content_type: Response content-type, default = text/html; charset=UTF-8"
     """
 
     def __init__(
