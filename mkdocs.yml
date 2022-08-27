@@ -6,6 +6,10 @@ use_directory_urls: false
 docs_dir: docs
 theme:
   name: material
+  favicon: assets/favicon.png
+  logo: assets/logo.png
+  palette:
+    primary: blue
 markdown_extensions:
   - attr_list
   - pymdownx.emoji:
