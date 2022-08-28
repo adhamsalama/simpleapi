@@ -33,6 +33,12 @@ You will also need to install [gunicorn](https://gunicorn.org) to run the applic
 
 `pip install gunicorn`
 
-#### Note
+---
 
-SimpleAPI is made only for educational purposes, I have been using Python frameworks like Flask and Django for years, and most recently, FastAPI. I was inspired by FastAPI and decided to create a framework by myself to deepen my knowledge of how web frameworks.
+## Note
+
+SimpleAPI is made only for educational purposes, I have been using Python frameworks like Flask and Django for years, and most recently, FastAPI. I was inspired by FastAPI and decided to create a framework by myself to deepen my knowledge of how web frameworks work.
+
+That being said...
+
+![django_kofta](assets/django_kofta.png)
