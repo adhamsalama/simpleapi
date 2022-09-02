@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "simplestapi"
-version = "0.1.0"
+version = "0.1.1"
 description = "SimpleAPI is a minimalistic, unopinionated web framework for Python, inspired by FastAPI & Flask"
 authors = ["Adham Salama <adham.salama@zohomail.com>"]
 license = "MIT"
@@ -12,8 +12,9 @@ classifiers = [
 packages = [
     {include = "simpleapi"}
 ]
-homepage = "https://github.com/adhamsalama/simpleapi"
+homepage = "https://adhamsalama.github.io/simpleapi"
 repository = "https://github.com/adhamsalama/simpleapi"
+readme = "README.md"
 
 [tool.poetry.urls]
 "Bug Tracker" = "https://github.com/adhamsalama/simpleapi/issues"
