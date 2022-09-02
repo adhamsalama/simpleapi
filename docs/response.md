@@ -43,3 +43,15 @@ def not_found():
     )
     return response
 ```
+
+Or you could return the built-in **NotFoundErrorResponse**!
+
+```python
+from simpleapi import SimpleAPI, NotFoundErrorResponse
+
+app = SimpleAPI()
+
+@app.get("/not-found")
+def not_found():
+    return NotFoundErrorResponse()
+```
