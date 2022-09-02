@@ -21,7 +21,6 @@ class Request:
     """
 
     def __init__(self, environ: utils.Environ) -> None:
-        self.environ = environ
         self.method: str = environ["REQUEST_METHOD"]
         self.path: str = environ["PATH_INFO"]
         self.extra: dict[str, Any] = {}

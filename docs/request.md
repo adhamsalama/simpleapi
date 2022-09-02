@@ -4,7 +4,6 @@ The Request class contains severl useful properties.
 
 Properties:
 
--   environ (The WSGI environ).
 -   method (The request HTTP method)
 -   path (The request path).
 -   params (The route's dynamic parameters).
