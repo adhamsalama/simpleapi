@@ -1,6 +1,6 @@
 # Request
 
-The Request object contains severl useful properties.
+The Request class contains severl useful properties.
 
 Properties:
 
