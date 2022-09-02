@@ -1,5 +1,5 @@
 import json
-from typing import Any, Callable, TypedDict, TypeVar
+from typing import Any, Callable, TypedDict
 
 from pydantic import BaseModel
 
@@ -18,9 +18,6 @@ class ErrorMessage(TypedDict):
     """
 
     errors: list[Error]
-
-
-start_response_function = Callable[[str, list[tuple[str, str]]], Any]
 
 
 class Response:
@@ -55,60 +52,20 @@ class Response:
         self.set_header("Set-Cookie", f"{key}={value}")
 
 
-class WSGIResponse:
-    """
-    WSGI Response Class
-
-    It has the required properties to return a response
-    """
-
-    def __init__(
-        self,
-        start_response: start_response_function,
-        status: str,
-        headers: list[tuple[str, str]],
-        body: bytes | dict[str, Any] | str,
-    ) -> None:
-        self.body = body
-        start_response(status, headers)
-
-    @classmethod
-    def simple_response(
-        cls, start_response: start_response_function, response: Response
-    ):
-        return WSGIResponse(
-            start_response,
-            status=str(response.code),
-            headers=response.headers,
-            body=response.body,
-        )
-
-    def send(self):
-        if isinstance(self.body, bytes):
-            return [self.body]
-        elif isinstance(self.body, dict):
-            return [bytes(json.dumps(self.body).encode("utf-8"))]
-
-        elif isinstance(self.body, list):
-            return [bytes(json.dumps(self.body).encode("utf-8"))]
-
-        else:
-            return [self.body.encode("utf-8")]
-
-
 class JSONResponse(Response):
     # content_type: str = "application/json"
     def __init__(
         self,
         body: Any,
         headers: list[tuple[str, str]] | None = None,
-        content_type: str = "application/json",
         code: int = 200,
     ) -> None:
-        super().__init__(body, content_type, headers if headers else [], code)
-
-    def parse_body(self):
-        return json.dumps(self.body)
+        super().__init__(
+            code=code,
+            body=body,
+            content_type="application/json",
+            headers=headers if headers else [],
+        )
 
 
 class ErrorResponse(Response):
@@ -122,7 +79,6 @@ class ErrorResponse(Response):
     """
 
     def __init__(self, messages: ErrorMessage, code: int = 500) -> None:
-        # self.code: int = Field(default=500, ge=400, lt=600)
         self.code: int = code
         self.messages: ErrorMessage = messages
         super().__init__(
@@ -170,6 +126,48 @@ class ParsingErrorResponse(ErrorResponse):
         )
 
 
-GenericResponse = TypeVar(
-    "GenericResponse", Response, ErrorResponse, str, int, float, BaseModel, dict
-)
+start_response_function = Callable[[str, list[tuple[str, str]]], Any]
+
+
+class WSGIResponse:
+    """
+    WSGI Response Class
+
+    It has the required properties to return a response
+    """
+
+    def __init__(
+        self,
+        start_response: start_response_function,
+        status: str,
+        headers: list[tuple[str, str]],
+        body: bytes | dict[str, Any] | str,
+    ) -> None:
+        self.body = body
+        start_response(status, headers)
+
+    @classmethod
+    def simple_response(
+        cls, start_response: start_response_function, response: Response
+    ):
+        return WSGIResponse(
+            start_response,
+            status=str(response.code),
+            headers=response.headers,
+            body=response.body,
+        )
+
+    def send(self):
+        if isinstance(self.body, bytes):
+            return [self.body]
+        elif isinstance(self.body, dict):
+            return [bytes(json.dumps(self.body).encode("utf-8"))]
+
+        elif isinstance(self.body, list):
+            return [bytes(json.dumps(self.body).encode("utf-8"))]
+
+        else:
+            return [self.body.encode("utf-8")]
+
+
+GenericResponse = Response | str | int | float | BaseModel | dict
