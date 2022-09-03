@@ -38,3 +38,7 @@ More examples can be found in [tests](./tests)
 ## Documentation
 
 [https://adhamsalama.github.io/simpleapi](https://adhamsalama.github.io/simpleapi)
+
+---
+
+![django_kofta](./docs/assets/django_kofta.png)
