@@ -24,7 +24,7 @@ from .routers import router
 
 app = SimpleAPI()
 
-app.include_router(prefix="/router", router=router)
+app.add_router(prefix="/router", router=router)
 ```
 
 Open your browser at [http://localhost:8000/router/hello](http://localhost:8000/router/hello).
