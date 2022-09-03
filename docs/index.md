@@ -11,7 +11,6 @@ The features:
 
 1. Simple and easy to understand.
 1. Fully Typed.
-1. Dependency Injection system.
 1. Automatic Validation.
 1. Tested.
 
