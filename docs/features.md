@@ -14,7 +14,7 @@ I was hugely inspired by FastAPI's use of [Python's type annotations](https://do
 
 ### Automatic Validation
 
-Because you can inject your dependencies into your functions, SimpleAPI automatically validates the incoming request body and supplies your functions with the required arguments.
+If you specify the required fields of the incoming request body and their types, SimpleAPI automatically validates the incoming request body and supplies your functions with the required arguments.
 
 If the request body doesn't contain the arguments you specified, or doesn't match the types you specified, SimpleAPI returns an error response with a message highlighting where the error occured and what is the cause.
 
