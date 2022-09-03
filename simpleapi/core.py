@@ -12,10 +12,6 @@ class API:
 
     def __init__(self, middleware: list[Middleware] | None = None) -> None:
         self.handlers: list[RouteHandler] = []
-        self.body: dict[str, Any] = {}
-        self.extra: dict[Any, Any] = {}  # Extra dict for middleware to attach data to
-        self.query: dict[Any, list[str]] = {}
-        self.params: dict[str, str] = {}
         self.middleware: list[Middleware] = middleware if middleware else []
 
     def handle_request_decorator(
