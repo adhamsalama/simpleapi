@@ -12,10 +12,6 @@ I was hugely inspired by FastAPI's use of [Python's type annotations](https://do
 ![Autocomplete](./assets/autocomplete.png)
 ![Variable_type](./assets/variable_type.png)
 
-### Dependency Injection system
-
-Like FastAPI, you can inject your dependencies into your functions.
-
 ### Automatic Validation
 
 Because you can inject your dependencies into your functions, SimpleAPI automatically validates the incoming request body and supplies your functions with the required arguments.

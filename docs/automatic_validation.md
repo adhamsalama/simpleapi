@@ -1,8 +1,4 @@
-# Dependency Injection
-
-Dependency Injection is a powerful feature.
-
-It allows you to specify exactly what you need.
+# Automatic Validation
 
 ### A simple example
 

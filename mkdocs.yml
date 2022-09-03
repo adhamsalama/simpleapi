@@ -34,7 +34,7 @@ nav:
   - features.md
   - first_steps.md
   - dynamic_routing.md
-  - dependency_injection.md
+  - automatic_validation.md
   - routers.md
   - middleware.md
   - request.md
