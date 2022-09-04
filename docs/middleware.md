@@ -70,7 +70,7 @@ def function_middleware(request: Request):
     """Logger middleware"""
     print("This is the /hello route")
 
-app = SimpleAPI(middleware=[function_middleware])
+app = SimpleAPI()
 
 @app.get("/hello", middleware=[function_middleware])
 def hello():
