@@ -54,15 +54,22 @@ def parse_body(
     return body, form
 
 
-def parse_query_string(environ: Environ) -> dict[str, str]:
+def parse_query_string(environ: Environ) -> dict[str, str | list[str]]:
     """Parses query parameters from a query string and returns a dict"""
-    # ? I have decided to save only one value instead of an array of values
     if not environ["QUERY_STRING"]:
         return {}
-    return {
-        k: v
-        for [k, v] in [query.split("=") for query in environ["QUERY_STRING"].split("&")]
-    }
+    splitted = [query.split("=") for query in environ["QUERY_STRING"].split("&")]
+    queries: dict[str, str | list[str]] = {}
+    for [k, v] in splitted:
+        if k in queries:
+            existing_query = queries[k]
+            if isinstance(existing_query, list):
+                existing_query.append(v)
+            else:
+                queries[k] = [existing_query, v]
+        else:
+            queries[k] = v
+    return queries
 
 
 def parse_cookies(environ: Environ) -> dict[str, str]:

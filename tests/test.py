@@ -120,11 +120,12 @@ def test_middleware():
 
 
 def test_get_query_request():
-    response = requests.get(f"http://localhost:8000/query?q=cats&p=dogs")
+    response = requests.get(f"http://localhost:8000/query?q=cats&p=dogs&tags=a&tags=b")
     assert response.ok
     assert json.loads(response.content.decode("utf-8")) == {
         "q": "cats",
         "p": "dogs",
+        "tags": ["a", "b"],
     }
 
 
