@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "simplestapi"
-version = "0.1.2"
+version = "0.1.3"
 description = "SimpleAPI is a minimalistic, unopinionated web framework for Python, inspired by FastAPI & Flask"
 authors = ["Adham Salama <adham.salama@zohomail.com>"]
 license = "MIT"
