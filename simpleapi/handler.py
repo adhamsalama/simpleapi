@@ -52,7 +52,6 @@ def handle_request(
 
             handler_type_hints = get_type_hints(handler["handler"])
             dependency_injection: dict[str, Any] = {}
-            uses_query = False
             for k, v in handler_type_hints.items():
                 if v == Request:
                     dependency_injection[k] = request
