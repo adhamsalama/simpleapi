@@ -147,7 +147,7 @@ def test_dependency_injection_error():
         "errors": [
             {
                 "loc": ["active"],
-                "msg": "Property active is required to be of type bool but it's missing",
+                "msg": "Body field active is required to be of type bool but it's missing",
             }
         ]
     }
