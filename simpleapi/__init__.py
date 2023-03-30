@@ -1,6 +1,6 @@
 __version__ = "0.1.2"
 
-from .custom_types import RouteHandler, ViewFunction, Middleware
+from .custom_types import RouteHandler, ViewFunction, Middleware, Query
 from .request import Request
 from .response import (
     ErrorResponse,

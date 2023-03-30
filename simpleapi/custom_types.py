@@ -15,3 +15,9 @@ class RouteHandler(TypedDict):
     handler: ViewFunction
     middleware: list[Middleware]
     router_id: int
+
+
+class Query:
+    def __init__(self, query: str) -> None:
+        self.key = query
+        self.value: str | list[str] = None  # type: ignore

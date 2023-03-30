@@ -1,9 +1,10 @@
 import json
-from typing import Any, get_type_hints
+from typing import Any, get_type_hints, cast
+import inspect
 
 from pydantic import BaseModel, ValidationError
 
-from .custom_types import ComponentMiddleware, Middleware, RouteHandler
+from .custom_types import ComponentMiddleware, Middleware, RouteHandler, Query
 from .request import Request
 from .response import (
     JSONResponse,
@@ -51,7 +52,11 @@ def handle_request(
 
             handler_type_hints = get_type_hints(handler["handler"])
             dependency_injection: dict[str, Any] = {}
+            uses_query = False
             for k, v in handler_type_hints.items():
+                # print(
+                #     f"{k=},{v=}, {isinstance(v.__class__, Query)}, {type(v)},{type(Query)} ,{v == Query}"
+                # )
                 if v == Request:
                     dependency_injection[k] = request
                 elif k in request.body.keys():
@@ -75,6 +80,15 @@ def handle_request(
                                 ]
                             }
                         )
+                elif (
+                    v is Query and k in request.query
+                ):  # isinstance(k, Query) and v in request.query.keys():
+                    signature = inspect.signature(handler["handler"])
+                    default_value = signature.parameters[k]
+                    value = cast(Query, default_value.default)
+                    value.value = request.query[k]
+                    uses_query = True
+
                 else:
                     return ValidationErrorResponse(
                         messages={
@@ -86,7 +100,7 @@ def handle_request(
                             ]
                         }
                     )
-            if handler_type_hints and not dependency_injection:
+            if handler_type_hints and not dependency_injection and not uses_query:
                 return ValidationErrorResponse(
                     messages={
                         "errors": [
