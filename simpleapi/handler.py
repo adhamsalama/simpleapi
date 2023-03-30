@@ -54,9 +54,6 @@ def handle_request(
             dependency_injection: dict[str, Any] = {}
             uses_query = False
             for k, v in handler_type_hints.items():
-                # print(
-                #     f"{k=},{v=}, {isinstance(v.__class__, Query)}, {type(v)},{type(Query)} ,{v == Query}"
-                # )
                 if v == Request:
                     dependency_injection[k] = request
                 elif k in request.body.keys():
@@ -80,27 +77,37 @@ def handle_request(
                                 ]
                             }
                         )
-                elif (
-                    v is Query and k in request.query
-                ):  # isinstance(k, Query) and v in request.query.keys():
+                elif v is Query:
                     signature = inspect.signature(handler["handler"])
-                    default_value = signature.parameters[k]
-                    value = cast(Query, default_value.default)
-                    value.value = request.query[k]
-                    uses_query = True
-
+                    parameter = signature.parameters[k]
+                    # print(k, parameter.default, bool(parameter.default))
+                    if k in request.query:
+                        dependency_injection[k] = request.query[k]
+                    elif isinstance(parameter.default, (str, list)):
+                        dependency_injection[k] = parameter.default
+                    else:
+                        return ValidationErrorResponse(
+                            messages={
+                                "errors": [
+                                    {
+                                        "loc": [k],
+                                        "msg": f"Query paramater {k} is required",
+                                    }
+                                ]
+                            }
+                        )
                 else:
                     return ValidationErrorResponse(
                         messages={
                             "errors": [
                                 {
                                     "loc": [k],
-                                    "msg": f"Property {k} is required to be of type {v.__name__} but it's missing",
+                                    "msg": f"Body field {k} is required to be of type {v.__name__} but it's missing",
                                 }
                             ]
                         }
                     )
-            if handler_type_hints and not dependency_injection and not uses_query:
+            if handler_type_hints and not dependency_injection:
                 return ValidationErrorResponse(
                     messages={
                         "errors": [

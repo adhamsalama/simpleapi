@@ -259,9 +259,7 @@ def empty():
 
 @app.get("/query-type-hint")
 def q(
-    # req: Request,
-    a: int,
-    name: Query = Query("name"),
-    age: Query = Query("age"),
+    age: Query,
+    name: Query = "adhom",
 ):
-    return JSONResponse(body=[name.value, age.value])
+    return JSONResponse(body=[name, age])

@@ -17,7 +17,4 @@ class RouteHandler(TypedDict):
     router_id: int
 
 
-class Query:
-    def __init__(self, query: str) -> None:
-        self.key = query
-        self.value: str | list[str] = None  # type: ignore
+Query = str | list[str]
