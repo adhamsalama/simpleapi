@@ -92,7 +92,7 @@ But if age wasn't provided, an error would be automatically returned.
 
 If we provide the age query, we will get this response.
 
-![query_response](assets/query-response.png)
+![query_response](assets/query-response-1.png)
 
 If we provide name and query, we will get this response.
 
