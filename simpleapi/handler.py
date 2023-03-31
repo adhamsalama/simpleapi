@@ -79,7 +79,6 @@ def handle_request(
                 elif v is Query:
                     signature = inspect.signature(handler["handler"])
                     parameter = signature.parameters[k]
-                    # print(k, parameter.default, bool(parameter.default))
                     if k in request.query:
                         dependency_injection[k] = request.query[k]
                     elif isinstance(parameter.default, (str, list)):
