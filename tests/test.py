@@ -217,3 +217,29 @@ def test_reading_headers():
         assert k in json_response.keys()
         assert v in json_response.values()
         assert json_response[k] == v
+
+
+def test_query_type_hints():
+    response = requests.get("http://localhost:8000/query-type-hint?")
+    assert not response.ok
+    assert response.status_code == 403
+    json_response = response.json()
+    assert json_response == {
+        "errors": [
+            {
+                "loc": ["age"],
+                "msg": f"Query paramater age is required",
+            }
+        ]
+    }
+    response = requests.get("http://localhost:8000/query-type-hint?age=69")
+    assert response.ok
+    json_response = response.json()
+    assert json_response == {"name": "adhom", "age": "69"}
+
+    response = requests.get(
+        "http://localhost:8000/query-type-hint?name=sasa&age=69&age=420"
+    )
+    assert response.ok
+    json_response = response.json()
+    assert json_response == {"name": "sasa", "age": ["69", "420"]}

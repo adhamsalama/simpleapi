@@ -262,4 +262,4 @@ def q(
     age: Query,
     name: Query = "adhom",
 ):
-    return JSONResponse(body=[name, age])
+    return JSONResponse(body={"name": name, "age": age})
