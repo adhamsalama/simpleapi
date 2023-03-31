@@ -65,3 +65,42 @@ def add_person(person: Person):
 If we for example removed the "is_alive" field, the automatic validation will handle it for us.
 
 ![dependency_injection_pydantic_error](assets/dependency_injection_pydantic_error.png)
+
+### Query validation
+
+You can also specify query parmeters.
+
+```python
+from simpleapi import Query
+
+@app.get("/query-type-hint")
+def query(
+    age: Query,
+    name: Query = "adhom",
+):
+    return JSONResponse(body={"name": name, "age": age})
+
+```
+
+In this example, we specified that we require a query parameter named age and another query parameter named name, which has a default value and return the queries .
+
+If name wasn't provided by the client, then the default value will be used.
+
+But if age wasn't provided, an error would be automatically returned.
+
+![query_error](assets/query-error.png)
+
+If we provide the age query, we will get this response.
+
+![query_response](assets/query-response.png)
+
+If we provide name and query, we will get this response.
+
+![query_response](assets/query-response-2.png)
+
+Notice that because we provied a value for name, this value was passed to the function and was used instead of the default value.
+
+The Query type is a union of str and list[str].
+
+If we provide multiple values for the same query parameter, it will be passed to the function as an array.
+![query_response](assets/query-response-3.png)
