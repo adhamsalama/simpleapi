@@ -1,9 +1,10 @@
 import json
-from typing import Any, get_type_hints
+from typing import Any, get_type_hints, cast
+import inspect
 
 from pydantic import BaseModel, ValidationError
 
-from .custom_types import ComponentMiddleware, Middleware, RouteHandler
+from .custom_types import ComponentMiddleware, Middleware, RouteHandler, Query
 from .request import Request
 from .response import (
     JSONResponse,
@@ -75,13 +76,31 @@ def handle_request(
                                 ]
                             }
                         )
+                elif v is Query:
+                    signature = inspect.signature(handler["handler"])
+                    parameter = signature.parameters[k]
+                    if k in request.query:
+                        dependency_injection[k] = request.query[k]
+                    elif isinstance(parameter.default, (str, list)):
+                        dependency_injection[k] = parameter.default
+                    else:
+                        return ValidationErrorResponse(
+                            messages={
+                                "errors": [
+                                    {
+                                        "loc": [k],
+                                        "msg": f"Query paramater {k} is required",
+                                    }
+                                ]
+                            }
+                        )
                 else:
                     return ValidationErrorResponse(
                         messages={
                             "errors": [
                                 {
                                     "loc": [k],
-                                    "msg": f"Property {k} is required to be of type {v.__name__} but it's missing",
+                                    "msg": f"Body field {k} is required to be of type {v.__name__} but it's missing",
                                 }
                             ]
                         }

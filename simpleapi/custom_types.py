@@ -15,3 +15,6 @@ class RouteHandler(TypedDict):
     handler: ViewFunction
     middleware: list[Middleware]
     router_id: int
+
+
+Query = str | list[str]

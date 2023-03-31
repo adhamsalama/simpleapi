@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from simpleapi import JSONResponse, Request, Response, SimpleAPI
+from simpleapi import JSONResponse, Request, Response, SimpleAPI, Query
 from simpleapi.response import ErrorResponse
 
 from .routers import item
@@ -255,3 +255,11 @@ def html():
 def empty():
     """Returns an empty response"""
     return ""
+
+
+@app.get("/query-type-hint")
+def q(
+    age: Query,
+    name: Query = "adhom",
+):
+    return JSONResponse(body={"name": name, "age": age})
