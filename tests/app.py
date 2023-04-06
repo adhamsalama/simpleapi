@@ -200,6 +200,12 @@ def index6():
     return item
 
 
+@app.post("/pydantic")
+def index7(item: Item):
+    """View function that takes Pydantic model and returns a Pydantic BaseModel"""
+    return {"item": item.dict()}
+
+
 @app.get("/greet/{first_name}/{last_name}")
 def greet_fullname(request: Request):
     """Multiple dynamic route that greets users"""

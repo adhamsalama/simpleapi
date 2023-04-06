@@ -36,6 +36,9 @@ An example:
 
 ![dependency_injection_error2](assets/dependency_injection_error2.png)
 
+Note: this only supports int, float, str, and bool.
+For more complex types, check and following section about Pydantic models.
+
 ### Pydantic Models
 
 You can have more fine-grained control and specify objects using Pydantic BaseModels.

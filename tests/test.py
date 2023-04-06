@@ -243,3 +243,27 @@ def test_query_type_hints():
     assert response.ok
     json_response = response.json()
     assert json_response == {"name": "sasa", "age": ["69", "420"]}
+
+
+def test_pydantic_validation():
+    # bad body
+    body = {"item": {"name": "adhom", "price": "not a float"}}
+    response = requests.post("http://localhost:8000/pydantic", json=body)
+    print(response.content)
+    assert not response.ok
+    json_response = response.json()
+    assert json_response == {
+        "errors": [
+            {
+                "loc": ["price"],
+                "msg": "value is not a valid float",
+                "type": "type_error.float",
+            }
+        ]
+    }
+    body["item"]["price"] = 22.5  # type: ignore
+    response = requests.post("http://localhost:8000/pydantic", json=body)
+    print(response.content)
+    assert response.ok
+    json_response = response.json()
+    assert json_response == body
