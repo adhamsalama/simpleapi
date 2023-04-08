@@ -30,4 +30,4 @@ jobs:
         poetry install
     - name: Test types with mypy
       run: |
-        poetry run poe typecheck
+        poetry run yasta run typecheck
