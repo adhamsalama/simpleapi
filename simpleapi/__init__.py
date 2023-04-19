@@ -1,4 +1,4 @@
-__version__ = "0.1.2"
+__version__ = "0.1.5"
 
 from .custom_types import RouteHandler, ViewFunction, Middleware, Query
 from .request import Request
