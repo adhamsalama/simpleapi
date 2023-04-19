@@ -24,7 +24,10 @@ app = SimpleAPI(middleware=[global_middleware])
 
 
 @app.get("/set-cookie")
-def set_cookies(request: Request):
+# Don't remove the return type hint
+# this catches the case where handler function
+# has return type hint which throw a validation error
+def set_cookies(request: Request) -> JSONResponse:
     """Sets cookies"""
     res = JSONResponse(body=request.cookies, headers=[("header1", "value1")])
     res.set_cookie("key1", "value1")
