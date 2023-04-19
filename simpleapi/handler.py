@@ -51,6 +51,10 @@ def handle_request(
                 return middleware_response
 
             handler_type_hints = get_type_hints(handler["handler"])
+            # Remove return type hint as we don't need it because it had caused
+            # a validation error for any handler function that had a return type hint
+            if "return" in handler_type_hints:
+                del handler_type_hints["return"]
             dependency_injection: dict[str, Any] = {}
             for k, v in handler_type_hints.items():
                 if v == Request:
